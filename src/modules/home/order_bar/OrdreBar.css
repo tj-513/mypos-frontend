@@ -1,0 +1,38 @@
+.container-home{
+    background-color: palegoldenrod;
+    align-content: center;
+    width: 90%;
+    padding: 20px;
+    margin: 20px;
+}
+
+.order-bar-container{
+    text-align: center;
+    vertical-align: center;
+    margin: 5px;
+    padding: 10px;
+    background: aliceblue;
+}
+
+.order-bar-container-header{
+    text-align: center;
+    vertical-align: center;
+    margin: 5px;
+    padding: 10px;
+    background: azure;
+}
+
+.badge{
+    font-size: 15pt;
+    margin-bottom: 0pt;
+}
+
+.row{
+    border-radius: 10px;
+}
+
+.vcenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

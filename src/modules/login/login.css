@@ -1,0 +1,40 @@
+.Login {
+    text-align: center;
+}
+
+.App-header {
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+}
+
+.container-m{
+    background-color: palegoldenrod;
+    max-height: border-box;
+    align-content: center;
+    padding: 40px;
+    max-width: 400px;
+    min-width: 200px;
+}
+
+.btn-space{
+    margin : 5px;
+}
+.loginbox{
+    padding: 10px;
+    width: 50%;
+    text-align: center;
+}
+
+.top-space{
+    margin-top: 10px;
+}
+
+.top-large-space{
+    margin-top: 50px;
+}

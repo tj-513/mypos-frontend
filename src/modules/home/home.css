@@ -1,0 +1,31 @@
+.container-home{
+    background-color: palegoldenrod;
+    align-content: center;
+    width: 90%;
+    padding: 20px;
+    margin: 20px;
+}
+
+.align-center{
+    text-align: center;
+}
+
+.top-space{
+    margin-top: 10px;
+}
+
+.top-large-space{
+    margin-top: 50px;
+}
+
+.Login {
+    text-align: center;
+}
+
+.col{
+
+}
+
+.btn-space{
+    margin : 5px;
+}
