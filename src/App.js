@@ -4,6 +4,7 @@ import './App.css';
 import Login from "./modules/login/login";
 import Home from "./modules/home/home";
 import Register from "./modules/register/register";
+import PosNavbar from "./modules/navbar/pos-navbar";
 
 class App extends Component {
   render() {
@@ -11,10 +12,11 @@ class App extends Component {
 
     if(x){
        return (
+
          <Register/>
        );
     }else{
-        return (<Home />);
+        return ( <React.Fragment><PosNavbar/><Home /></React.Fragment>);
     }
 
   }
