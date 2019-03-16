@@ -13,9 +13,8 @@
     color: white;
 }
 
-.container-m{
+.myposbox{
     background-color: palegoldenrod;
-    max-height: border-box;
     align-content: center;
     padding: 40px;
     max-width: 400px;

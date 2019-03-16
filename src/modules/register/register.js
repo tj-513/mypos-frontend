@@ -6,18 +6,50 @@ import "./register.css"
 
 class Register extends Component {
 
+
     constructor() {
         super();
-        this.state = {p: '', u: ''}
+        this.doRegister = this.doRegister.bind(this)
+        this.redirectToLogin = this.redirectToLogin.bind(this)
+        this.state = {showRegistrationSuccess: true}
     }
 
-    update() {
-        this.setState({p: this.refs.password.value, u: this.refs.username.value});
+
+    redirectToLogin() {
+        console.log('redirect from register')
+        this.props.history.push('login');
+    }
+
+    doRegister() {
+
+        let newUser = {
+            "address": "sample_address",
+            "email": this.refs.email.value,
+            "firstName": this.refs.firstName.value,
+            "lastName": this.refs.lastName.value,
+            "password": this.refs.password.value,
+            "username": this.refs.username.value
+        }
+
+        fetch('http://localhost:8090/api/users', {
+            mode: 'cors',
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify(newUser)
+        }).then(response => response.json()
+            .then(data => {
+                if (response.ok) {
+                    console.log('Registration Success:', data)
+                    this.setState(prevState => prevState.showRegistrationSuccess = true)
+                } else {
+                    console.log('Registration fail', data)
+                }
+            }))
     }
 
     render() {
         return (
-            <div className="col-8 container-m top-large-space">
+            <div className="col-8 myposbox top-large-space">
                 <p className="h3 text-center">
                     Welcome to MyPoS
                 </p>
@@ -32,7 +64,6 @@ class Register extends Component {
                         <div>First Name</div>
                         <input
                             className="form-control"
-                            onChange={this.update.bind(this)}
                             ref="firstName"
                             type="text">
                         </input>
@@ -40,7 +71,6 @@ class Register extends Component {
                         <div>Last Name</div>
                         <input
                             className="form-control"
-                            onChange={this.update.bind(this)}
                             ref="lastName"
                             type="text">
                         </input>
@@ -48,8 +78,7 @@ class Register extends Component {
                         <div>Email</div>
                         <input
                             className="form-control"
-                            onChange={this.update.bind(this)}
-                            ref="lastName"
+                            ref="email"
                             type="text">
                         </input>
 
@@ -57,7 +86,6 @@ class Register extends Component {
                         <div>Username</div>
                         <input
                             className="form-control"
-                            onChange={this.update.bind(this)}
                             ref="username"
                             type="text">
                         </input>
@@ -66,7 +94,6 @@ class Register extends Component {
                         <div>Password</div>
                         <input
                             className="form-control"
-                            onChange={this.update.bind(this)}
                             ref="password"
                             type="password">
                         </input>
@@ -74,20 +101,38 @@ class Register extends Component {
                         <div>Confirm Password</div>
                         <input
                             className="form-control"
-                            onChange={this.update.bind(this)}
-                            ref="password"
                             type="password">
                         </input>
 
                     </div>
+                    <div className="pt-3 text-center">
+                        {this.state.showRegistrationSuccess ?
+                            <span className="text-xl-center"> Registration Succeess! <br/> Please Login to Continue </span> :
+                            null
+                        }
+                    </div>
                     <div className="text-center top-space">
-                        <button type="button" className="btn btn-primary col-5 btn-space" >Login</button>
-                        <button type="button" className="btn btn-info col-5 btn-space" >Sign In</button>
+
+                        {!this.state.showRegistrationSuccess ?
+
+                            <button type="button" onClick={this.doRegister}
+                                    className="btn btn-success col-5 btn-space">Sign Up
+                            </button>
+                            :
+                            <button type="button" onClick={this.redirectToLogin}
+                                    className="btn btn-primary col-5 btn-space">Back to Login
+                            </button>
+
+                        }
+
+
                     </div>
 
                 </div>
 
             </div>
+
+
         );
     }
 }

@@ -14,7 +14,7 @@ class Home extends React.Component {
     render() {
         const {open} = this.state;
         return (
-            <div className="align-center text-center top-large-space">
+            <div className="align-center text-center ">
                 <div className="container-home text-center">
 
                     <div>

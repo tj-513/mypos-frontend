@@ -9,15 +9,22 @@ class Login extends Component {
     constructor() {
         super();
         this.state = {p: '', u: ''}
+        this.redirectToSignIn = this.redirectToSignIn.bind(this);
     }
 
     update() {
         this.setState({p: this.refs.password.value, u: this.refs.username.value});
     }
 
+    redirectToSignIn(){
+        console.log('back to sign in')
+        let path = `register`;
+        this.props.history.push(path);
+    }
+
     render() {
         return (
-            <div className="col-8 container-m top-large-space">
+            <div className="myposbox top-large-space">
                 <p className="h3 text-center">
                     Welcome to MyPoS
                 </p>
@@ -47,7 +54,7 @@ class Login extends Component {
                     </div>
                     <div className="text-center top-space">
                         <button type="button" className="btn btn-primary col-5 btn-space" >Login</button>
-                        <button type="button" className="btn btn-info col-5 btn-space" >Sign In</button>
+                        <button type="button" className="btn btn-info col-5 btn-space" onClick={this.redirectToSignIn} >Sign In</button>
                     </div>
 
                 </div>
