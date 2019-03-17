@@ -1,7 +1,6 @@
 import React from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './OrdreBar.css'
-import OrderModal from '../order_modal/order_modal';
 
 class OrderBar extends React.Component {
     constructor() {

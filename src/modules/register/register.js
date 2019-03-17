@@ -1,6 +1,4 @@
-import logo from "../../logo.svg";
 import React, {Component} from "react"
-import validation from 'react-validation'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import "./register.css"
 

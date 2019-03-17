@@ -18,7 +18,7 @@ class Home extends React.Component {
 
         this.state = {
             open: false,
-            orders: null,
+            orders: [],
             modalData:{
                 modalShow: false,
                 modalMode: 'create',
@@ -72,7 +72,8 @@ class Home extends React.Component {
         this.setState({
             modalData:{
                 modalMode :'edit',
-                modalShow : true
+                modalShow : true,
+                modalOrderId: orderId
             }
         })
     }
@@ -85,6 +86,7 @@ class Home extends React.Component {
 
     render() {
         const {open} = this.state;
+        const openOrders = this.state.orders.filter(order => order.orderStatus === 'open');
         return (
 
             <div className="align-center text-center ">
@@ -94,6 +96,7 @@ class Home extends React.Component {
                     onEntered = {(data)=>console.log('onentered',data)}
                     mode={this.state.modalData.modalMode}
                     show={this.state.modalData.modalShow}
+                    orderId={this.state.modalData.modalOrderId}
                     onHide={this.modalClose}
                 />
 
@@ -117,14 +120,21 @@ class Home extends React.Component {
                     </div>
 
                     <div>
-                        <OrderBar orderName="Morning Order" dateCreated="20-10-2019" orderStatus="open"
-                                  onDetailsClick={this.orderDetailsClicked} orderId="1"/>
 
-                        <OrderBar orderName="Morning Order" dateCreated="20-10-2019" orderStatus="open"
-                                  onDetailsClick={this.orderDetailsClicked} orderId="1"/>
+                        {
+                            openOrders.map((order)=>(
+                                <OrderBar
+                                    key ={order.id}
+                                    orderName={order.orderName}
+                                    dateCreated={
+                                    new Date( Date.parse(order.dateCreated)).toDateString()}
+                                    orderStatus = {order.orderStatus}
+                                    orderId = {order.id}
+                                    onDetailsClick = {this.orderDetailsClicked.bind(this)}
+                                />
+                            ))
+                        }
 
-                        <OrderBar orderName="Morning Order" dateCreated="20-10-2019" orderStatus="open"
-                                  onDetailsClick={this.orderDetailsClicked} orderId="1"/>
                     </div>
 
 

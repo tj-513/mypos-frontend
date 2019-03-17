@@ -3,10 +3,6 @@ import './order-item.css'
 import { MdEdit,MdRemoveCircle } from "react-icons/md";
 
 class OrderItem extends React.Component {
-    constructor() {
-        super();
-
-    }
 
     render() {
 

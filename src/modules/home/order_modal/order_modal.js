@@ -13,22 +13,42 @@ class OrderModal extends React.Component {
         this.state = {
             modalMode: 'create',
             orderStatus: 'open',
-            orderItems: null
+            orderItems: []
         }
 
         console.log(this.props)
         this.addNotification = this.addNotification.bind(this);
+        this.loadOrderDetails = this.loadOrderDetails.bind(this)
         this.notificationDOMRef = React.createRef();
     }
 
     componentDidMount() {
         console.log('om', this.props)
         this.setState({modalMode: this.props.mode})
-    }
-
-    loadItemsForOrder() {
+        this.loadOrderDetails()
 
     }
+
+    loadOrderDetails(){
+        let orderId = this.props.orderId
+
+
+        fetch(`http://localhost:8090/api/orders/${orderId}`, {
+            method: 'GET',
+        }).then(response => response.json()
+            .then(data => {
+                if (response.ok) {
+                    console.log('Orders Items retrieval Success:', data)
+                    this.setState({orderItems: data})
+                } else {
+                    console.log('Order retrieval failed', data)
+                }
+            }))
+            .catch(e => {
+                console.log('error occurred', e)
+            })
+    }
+
 
     addNotification(success) {
 
@@ -80,8 +100,8 @@ class OrderModal extends React.Component {
     render() {
         return (
             <Modal
-
-                {...this.props}
+                onHide={this.props.onHide}
+                show={this.props.show}
                 size="lg"
             >
                 <ReactNotification ref={this.notificationDOMRef} />

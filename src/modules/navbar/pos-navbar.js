@@ -1,11 +1,9 @@
 
 import React from 'react'
-import { Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap'
+import { Navbar } from 'react-bootstrap'
 
 class PosNavbar extends React.Component{
-    constructor(){
-        super()
-    }
+
 
     render() {
 
