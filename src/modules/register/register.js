@@ -1,5 +1,6 @@
 import logo from "../../logo.svg";
 import React, {Component} from "react"
+import validation from 'react-validation'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import "./register.css"
 
@@ -11,13 +12,44 @@ class Register extends Component {
         super();
         this.doRegister = this.doRegister.bind(this)
         this.redirectToLogin = this.redirectToLogin.bind(this)
-        this.state = {showRegistrationSuccess: true}
+        this.state = {
+            registrationSuccess: false,
+            showRegistrationStatus: false,
+            successMessage: '',
+            emaiError: '',
+            passwordMatch: ''
+        }
     }
 
 
     redirectToLogin() {
         console.log('redirect from register')
         this.props.history.push('login');
+    }
+
+    validate(){
+        let
+            emailError = "",
+            passwordMatch = "";
+
+        let email = this.refs.email.value;
+        if(!email.includes('@')){
+            emailError = 'Invalid Email';
+        }
+
+        let password = this.refs.password.value;
+        let confirmPassword = this.refs.confirmPassword.value;
+        if( password !== confirmPassword){
+            passwordMatch = "Passwords dont match"
+        }
+
+        if(emailError || passwordMatch){
+
+            this.setState({passwordMatch,emailError})
+            console.log(this.state)
+            return false
+        }
+        return true;
     }
 
     doRegister() {
@@ -31,8 +63,10 @@ class Register extends Component {
             "username": this.refs.username.value
         }
 
+        if(!this.validate()) return;
+
+
         fetch('http://localhost:8090/api/users', {
-            mode: 'cors',
             method: 'POST',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify(newUser)
@@ -40,9 +74,16 @@ class Register extends Component {
             .then(data => {
                 if (response.ok) {
                     console.log('Registration Success:', data)
-                    this.setState(prevState => prevState.showRegistrationSuccess = true)
+                    this.setState(prevState => prevState.registrationSuccess = true)
+                    this.setState(prevState => prevState.showRegistrationStatus = true)
+                    this.setState(prevState => prevState.successMessage = 'Registration Succeess! \nPlease Login to Continue')
                 } else {
-                    console.log('Registration fail', data)
+                    if(400 <= response.status <= 500)
+
+                        this.setState(prevState => prevState.registrationSuccess = false)
+                        this.setState(prevState => prevState.showRegistrationStatus = true)
+                        this.setState(prevState => prevState.successMessage = 'Registration Failed ' + data.message)
+                        console.log('Registration fail', data)
                 }
             }))
     }
@@ -81,7 +122,7 @@ class Register extends Component {
                             ref="email"
                             type="text">
                         </input>
-
+                        <div>{this.state.emailError}</div>
 
                         <div>Username</div>
                         <input
@@ -100,20 +141,21 @@ class Register extends Component {
 
                         <div>Confirm Password</div>
                         <input
+                            ref="confirmPassword"
                             className="form-control"
                             type="password">
                         </input>
 
                     </div>
                     <div className="pt-3 text-center">
-                        {this.state.showRegistrationSuccess ?
-                            <span className="text-xl-center"> Registration Succeess! <br/> Please Login to Continue </span> :
+                        {this.state.showRegistrationStatus ?
+                            <span className="text-xl-center"> {this.state.successMessage} </span> :
                             null
                         }
                     </div>
                     <div className="text-center top-space">
 
-                        {!this.state.showRegistrationSuccess ?
+                        {!this.state.registrationSuccess ?
 
                             <button type="button" onClick={this.doRegister}
                                     className="btn btn-success col-5 btn-space">Sign Up

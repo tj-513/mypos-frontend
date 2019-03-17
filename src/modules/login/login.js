@@ -1,4 +1,3 @@
-import logo from "../../logo.svg";
 import React, {Component} from "react"
 import 'bootstrap/dist/css/bootstrap.min.css'
 import "./login.css"
@@ -8,18 +7,82 @@ class Login extends Component {
 
     constructor() {
         super();
-        this.state = {p: '', u: ''}
+        this.state = {
+            loginFailed: false,
+            loginMessage: '',
+            usernameEmpty: '',
+            passwordEmpty: ''
+        }
         this.redirectToSignIn = this.redirectToSignIn.bind(this);
+        this.validate = this.validate.bind(this)
+        this.doLogin = this.doLogin.bind(this)
+
     }
 
     update() {
-        this.setState({p: this.refs.password.value, u: this.refs.username.value});
+        this.setState({
+            usernameEmpty: this.refs.password.value,
+            u: this.refs.username.value
+        });
     }
 
-    redirectToSignIn(){
-        console.log('back to sign in')
+    redirectToSignIn() {
         let path = `register`;
         this.props.history.push(path);
+    }
+
+
+    redirectToHome() {
+        let path = `home`;
+        this.props.history.push(path);
+    }
+
+    validate() {
+        let usernameEmpty
+        let passwordEmpty;
+
+        if (!this.refs.username.value) {
+            usernameEmpty = "Please Provide a Username"
+        }
+        if (!this.refs.password.value) {
+            passwordEmpty = "Please Provide a Password"
+        }
+
+        this.setState({usernameEmpty: usernameEmpty,passwordEmpty: passwordEmpty})
+
+        console.log(this.state)
+
+        return !(usernameEmpty || passwordEmpty);
+
+    }
+
+    doLogin() {
+
+        let newUser = {
+            "password": this.refs.password.value,
+            "username": this.refs.username.value
+        }
+
+        if (!this.validate()) return;
+
+
+        fetch('http://localhost:8090/api/users/login', {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify(newUser)
+        }).then(response => response.json()
+            .then(data => {
+                if (response.ok) {
+                    localStorage.setItem("user" , JSON.stringify(data)  )
+                    this.redirectToHome()
+                } else {
+                    this.setState({loginMessage: data.message})
+                }
+            }))
+            .catch( response => {
+                this.setState({loginMessage: "Login Failed.. Please try again"})
+            })
+
     }
 
     render() {
@@ -38,23 +101,29 @@ class Login extends Component {
                         <div>Username</div>
                         <input
                             className="form-control"
-                            onChange={this.update.bind(this)}
                             ref="username"
                             type="text">
                         </input>
-
+                        <div>{this.state.usernameEmpty} </div>
 
                         <div>Password</div>
                         <input
                             className="form-control"
-                            onChange={this.update.bind(this)}
                             ref="password"
                             type="password">
                         </input>
+                        <div>{this.state.passwordEmpty} </div>
+
                     </div>
                     <div className="text-center top-space">
-                        <button type="button" className="btn btn-primary col-5 btn-space" >Login</button>
-                        <button type="button" className="btn btn-info col-5 btn-space" onClick={this.redirectToSignIn} >Sign In</button>
+                        <div>
+                            {this.state.loginMessage}
+                        </div>
+
+                        <button type="button" className="btn btn-info col-5 btn-space"
+                            onClick={this.redirectToSignIn}>Sign In
+                        </button>
+                        <button type="button" onClick={this.doLogin} className="btn btn-primary col-5 btn-space">Login</button>
                     </div>
 
                 </div>

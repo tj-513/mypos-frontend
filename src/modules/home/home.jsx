@@ -8,7 +8,34 @@ import OrderBar from "./order_bar/OrderBar";
 class Home extends React.Component {
     constructor() {
         super();
-        this.state = {open: false}
+        this.getOrdersForUser = this.getOrdersForUser.bind(this)
+        this.state = {open: false, orders: null}
+    }
+
+    getOrdersForUser() {
+
+        let user = localStorage.getItem("user")
+        user = JSON.parse(user)
+        console.log(user)
+
+        fetch(`http://localhost:8090/api/users/orderlist/${user.id}`, {
+            method: 'GET',
+        }).then(response => response.json()
+            .then(data => {
+                if (response.ok) {
+                    console.log('Orders retrieval Success:', data)
+                    this.setState({orders: data})
+                } else {
+                    console.log('Order retrieval failed', data)
+                }
+            }))
+            .catch(e => {
+                console.log('error occured', e)
+            })
+    }
+
+    componentDidMount() {
+        this.getOrdersForUser()
     }
 
     render() {
@@ -61,11 +88,15 @@ class Home extends React.Component {
                     <Collapse in={this.state.open}>
                         <div id="example-collapse-text">
                             <div>
-                                <OrderBar orderName="Morning Order" dateCreated="20-10-2019" orderStatus="open"/>
-                                <OrderBar orderName="Morning Order" dateCreated="20-10-2019" orderStatus="open"/>
-                                <OrderBar orderName="Morning Order" dateCreated="20-10-2019" orderStatus="open"/>
-                                <OrderBar orderName="Morning Order" dateCreated="20-10-2019" orderStatus="open"/>
-                                <OrderBar orderName="Morning Order" dateCreated="20-10-2019" orderStatus="open"/>
+                                <div className="row order-bar-container">
+                                    <span className="col">Name</span>
+                                    <span className="col">Status</span>
+                                    <span className="col">Date Created</span>
+                                    <span className="col">Actions</span>
+                                </div>
+
+                                <OrderBar orderName="Morning Order" dateCreated="20-10-2019" orderStatus="closed"/>
+
                             </div>
                         </div>
                     </Collapse>

@@ -6,9 +6,30 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import OrderItem from "./order-item";
 
 class OrderModal extends React.Component {
+
+    constructor() {
+        super()
+        this.state = {
+            mode: 'create',
+            orderItems: null
+        }
+
+        console.log(this.props)
+
+    }
+
+    componentDidMount() {
+        console.log(this.props)
+    }
+
+    loadItemsForOrder() {
+
+    }
+
     render() {
         return (
             <Modal
+
                 {...this.props}
                 size="lg"
             >
@@ -17,33 +38,47 @@ class OrderModal extends React.Component {
                         Order Details
                     </Modal.Title>
                 </Modal.Header>
+
+
                 <Modal.Body>
                     <div className="form-inline p-2">
                         <label htmlFor="orderName" className="control-label col-2"> Order Name </label>
-                        <input name="orderName" className="form-control col-6" type="text" disabled={true} value="Name" />
-                        <button className="col-3 ml-3 btn btn-primary" variant="primary" > Create </button>
+                        <input name="orderName" className="form-control col-6" type="text" disabled={false}
+                               placeholder='Name...'/>
+                        <button className="col-3 ml-3 btn btn-primary" variant="primary"> {
+                            this.state.modal_mode === 'create' ? 'Create' : 'Edit'
+                        }</button>
                     </div>
+
+
                     <div>
-                        <div className="container border border-primary p-2 rounded">
+                        <div style={this.state.modal_mode === 'create' ? {display: 'none'} : {}}
+                             className="container border border-primary p-2 rounded">
                             <div className="p-1 h5">Add Item</div>
                             <div>
                                 <div className="row p-2 pl-3 pr-3">
-                                    <input placeholder="Type item name here.." className="form-control col-7 pl-2 pr-2" ref="itemName" type="text"/>
+                                    <input placeholder="Type item name here.." className="form-control col-7 pl-2 pr-2"
+                                           ref="itemName" type="text"/>
                                     <span className="col-1 vcenter">X</span>
-                                    <input placeholder="Quantity" className="form-control col-4 pl-2 pr-2" ref="itemName" type="number" min="1" max="100"/>
+                                    <input placeholder="Quantity" className="form-control col-4 pl-2 pr-2"
+                                           ref="itemName" type="number" min="1" max="100"/>
 
                                 </div>
                                 <div className="row pl-3 pr-3 pt-1 pb-1">
-                                    <span className="col-3 small p-1"> Available : <span className="h5">100</span></span>
-                                    <span className="col-3 small p-1"> Unit Price: <span className="h5">50$</span></span>
+                                    <span className="col-3 small p-1"> Available : <span
+                                        className="h5">100</span></span>
+                                    <span className="col-3 small p-1"> Unit Price: <span
+                                        className="h5">50$</span></span>
                                     <span className="col-3 small p-1"> Total: <span className="h4">500$</span></span>
-                                    <Button className="col-3 h5 pl-1 push-right" > Add Item</Button>
+                                    <Button className="col-3 h5 pl-1 push-right"> Add Item</Button>
                                 </div>
                             </div>
                         </div>
 
                         {/* order details start here*/}
-                        <div className="container border border-primary p-2 mt-1 rounded">
+                        <div className="container border border-primary p-2 mt-1 rounded"
+                             style={this.state.modal_mode === 'create' ? {display: 'none'} : {}}
+                        >
                             <div className="p-1 h5">Order Items</div>
                             <div>
 
@@ -60,8 +95,8 @@ class OrderModal extends React.Component {
                                 </div>
 
                                 {/* items */}
-                                <OrderItem />
-                                <OrderItem />
+                                <OrderItem/>
+                                <OrderItem/>
 
 
                                 {/* summation*/}
@@ -81,13 +116,19 @@ class OrderModal extends React.Component {
 
                 </Modal.Body>
                 <Modal.Footer>
-                    <span style={{float : 'left', paddingLeft : '5px'}}> Order Status : <span className="text-success h3" >Open</span> </span>
-                    <Button variant="danger" onClick={this.props.onHide}>{(()=>{
+                    <span style={this.state.modal_mode === 'create' ? {display: 'none'} : {}}>
+                        <span style={{float: 'left', paddingLeft: '5px'}}>
+                            Order Status : <span className="text-success h3">Open</span>
+                        </span>
+                    </span>
+                    <Button
+                        style={this.state.modal_mode === 'create' ? {display: 'none'} : {}}
+                        variant="danger" onClick={this.props.onHide}>{(() => {
                         let x = true;
-                        if(x) return "close order"
+                        if (x) return "close order"
                         else return "reopen order"
                     })()}</Button>
-                    <Button variant="dark"  onClick={this.props.onHide}>Close Window</Button>
+                    <Button variant="dark" onClick={this.props.onHide}>Close Window</Button>
                 </Modal.Footer>
             </Modal>
         );

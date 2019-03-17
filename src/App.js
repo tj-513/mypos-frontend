@@ -12,6 +12,11 @@ class App extends Component {
         this.state = {loggedIn: false}
     }
 
+    checkLoggedIn(){
+        if(localStorage.getItem('user')) return true;
+
+    }
+
     render() {
 
         return (
@@ -22,7 +27,7 @@ class App extends Component {
                     <Route path="/" component={Login} exact/>
                     <Route path="/register" component={Register}/>
                     <Route path="/home" component={() => {
-                        return this.state.loggedIn ? (<Home/>) : (<Redirect to="/login"/>)
+                        return this.checkLoggedIn() ? (<Home/>) : (<Redirect to="/login"/>)
                     }}/>
                     <Route component={Login}/>
                 </Switch>

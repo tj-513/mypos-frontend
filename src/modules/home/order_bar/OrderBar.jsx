@@ -6,8 +6,24 @@ import OrderModal from '../order_modal/order_modal';
 class OrderBar extends React.Component {
     constructor() {
         super();
-        this.state ={ modalShow: false };
 
+        this.onModalEntered = this.onModalEntered.bind(this)
+
+        this.state ={
+            modalShow: false,
+            modal_mode: 'create',
+            modal_order_id: null
+        };
+
+
+    }
+
+    onModalEntered(){
+
+        let user = localStorage.getItem("user")
+        user = JSON.parse(user)
+        console.log(user)
+        
     }
 
     render() {
@@ -19,7 +35,11 @@ class OrderBar extends React.Component {
 
             <div className="row order-bar-container">
                 <span className="vcenter col" >{this.props.orderName}</span>
-                <span className="vcenter col h3 badge badge-success">{this.props.orderStatus}</span>
+                <span
+                    className={
+                        this.props.orderStatus === 'open' ?
+                        "vcenter col h3 badge badge-success": "vcenter col h3 badge badge-dark"}
+                >{this.props.orderStatus}</span>
                 <span className="vcenter col">{this.props.dateCreated}</span>
                 <span className="vcenter col">
                     <button className="btn btn-info btn-space"
@@ -30,6 +50,8 @@ class OrderBar extends React.Component {
 
 
                 <OrderModal
+                    onEntered = {(data)=>console.log('onentered',data)}
+                    mode={this.state.modal_mode}
                     show={this.state.modalShow}
                     onHide={modalClose}
                 />
