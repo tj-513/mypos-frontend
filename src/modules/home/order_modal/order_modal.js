@@ -1,7 +1,6 @@
 import React from 'react'
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
-import ToggleButton from 'react-bootstrap/ToggleButton'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import OrderItem from "./order-item";
 
@@ -10,7 +9,7 @@ class OrderModal extends React.Component {
     constructor() {
         super()
         this.state = {
-            mode: 'create',
+            modalMode: 'create',
             orderItems: null
         }
 
@@ -19,7 +18,8 @@ class OrderModal extends React.Component {
     }
 
     componentDidMount() {
-        console.log(this.props)
+        console.log('om', this.props)
+        this.setState({modalMode : this.props.mode})
     }
 
     loadItemsForOrder() {
@@ -45,14 +45,14 @@ class OrderModal extends React.Component {
                         <label htmlFor="orderName" className="control-label col-2"> Order Name </label>
                         <input name="orderName" className="form-control col-6" type="text" disabled={false}
                                placeholder='Name...'/>
-                        <button className="col-3 ml-3 btn btn-primary" variant="primary"> {
-                            this.state.modal_mode === 'create' ? 'Create' : 'Edit'
+                        <button className="col-3 ml-3 btn btn-primary" onClick={()=>this.setState({modalMode:'edit'})}> {
+                            this.state.modalMode === 'create' ? 'Create' : 'Edit'
                         }</button>
                     </div>
 
 
                     <div>
-                        <div style={this.state.modal_mode === 'create' ? {display: 'none'} : {}}
+                        <div style={this.state.modalMode === 'create' ? {display: 'none'} : {}}
                              className="container border border-primary p-2 rounded">
                             <div className="p-1 h5">Add Item</div>
                             <div>
@@ -77,7 +77,7 @@ class OrderModal extends React.Component {
 
                         {/* order details start here*/}
                         <div className="container border border-primary p-2 mt-1 rounded"
-                             style={this.state.modal_mode === 'create' ? {display: 'none'} : {}}
+                             style={this.state.modalMode === 'create' ? {display: 'none'} : {}}
                         >
                             <div className="p-1 h5">Order Items</div>
                             <div>
@@ -116,13 +116,13 @@ class OrderModal extends React.Component {
 
                 </Modal.Body>
                 <Modal.Footer>
-                    <span style={this.state.modal_mode === 'create' ? {display: 'none'} : {}}>
+                    <span style={this.state.modalMode === 'create' ? {display: 'none'} : {}}>
                         <span style={{float: 'left', paddingLeft: '5px'}}>
                             Order Status : <span className="text-success h3">Open</span>
                         </span>
                     </span>
                     <Button
-                        style={this.state.modal_mode === 'create' ? {display: 'none'} : {}}
+                        style={this.state.modalMode === 'create' ? {display: 'none'} : {}}
                         variant="danger" onClick={this.props.onHide}>{(() => {
                         let x = true;
                         if (x) return "close order"

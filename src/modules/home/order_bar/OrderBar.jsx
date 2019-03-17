@@ -11,8 +11,8 @@ class OrderBar extends React.Component {
 
         this.state ={
             modalShow: false,
-            modal_mode: 'create',
-            modal_order_id: null
+            modalMode: 'create',
+            modalOrderId: null
         };
 
 
@@ -23,7 +23,7 @@ class OrderBar extends React.Component {
         let user = localStorage.getItem("user")
         user = JSON.parse(user)
         console.log(user)
-        
+
     }
 
     render() {
@@ -48,13 +48,6 @@ class OrderBar extends React.Component {
                 </span>
 
 
-
-                <OrderModal
-                    onEntered = {(data)=>console.log('onentered',data)}
-                    mode={this.state.modal_mode}
-                    show={this.state.modalShow}
-                    onHide={modalClose}
-                />
             </div>
         );
     }

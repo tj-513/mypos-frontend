@@ -4,12 +4,26 @@ import Collapse from 'react-bootstrap/Collapse'
 import Button from 'react-bootstrap/Button'
 import './home.css'
 import OrderBar from "./order_bar/OrderBar";
+import OrderModal from "./order_modal/order_modal";
 
 class Home extends React.Component {
     constructor() {
         super();
+
         this.getOrdersForUser = this.getOrdersForUser.bind(this)
-        this.state = {open: false, orders: null}
+        this.modalClose = this.modalClose.bind(this)
+        this.showCreateOrder = this.showCreateOrder.bind(this)
+
+
+        this.state = {
+            open: false,
+            orders: null,
+            modalData:{
+                modalShow: false,
+                modalMode: 'create',
+                modalOrderId: null
+            }
+        }
     }
 
     getOrdersForUser() {
@@ -34,14 +48,46 @@ class Home extends React.Component {
             })
     }
 
+    modalClose(){
+        this.setState({
+            modalData:{
+                modalShow : false
+            }
+        })
+
+    }
+
+    showCreateOrder(){
+
+        this.setState({
+            modalData:{
+                modalMode :'create',
+                modalShow : true
+            }
+        })
+    }
+
     componentDidMount() {
         this.getOrdersForUser()
     }
 
+
+
     render() {
         const {open} = this.state;
         return (
+
             <div className="align-center text-center ">
+
+                {(this.state.modalData.modalShow) &&
+                <OrderModal
+                    onEntered = {(data)=>console.log('onentered',data)}
+                    mode={this.state.modalData.modalMode}
+                    show={this.state.modalData.modalShow}
+                    onHide={this.modalClose}
+                />
+
+                }
                 <div className="container-home text-center">
 
                     <div>
@@ -50,7 +96,7 @@ class Home extends React.Component {
 
                     <div className="row order-bar-container-header">
                         <h5 className="col-10">Currently Open Orders</h5>
-                        <button className="col-2 btn btn-info"> + Create Order</button>
+                        <button className="col-2 btn btn-info" onClick={this.showCreateOrder}> + Create Order</button>
                     </div>
 
                     <div className="row order-bar-container">
