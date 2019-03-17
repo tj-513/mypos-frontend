@@ -108,9 +108,9 @@ class OrderModal extends React.Component {
 
 
     renderSuggestion = suggestion => (
-        <div className="bg-light rounded m-1 p-3" style={ {zIndex:99999, background:'#ffffff'} }>
+        <span className="bg-light rounded m-1 p-3 border border-dark" style={ {zIndex:99999, background:'#ffffff'} }>
             {suggestion.itemName}
-        </div>
+        </span>
     );
 
     onSuggestionsFetchRequested(value) {
@@ -194,7 +194,7 @@ class OrderModal extends React.Component {
                             <div>
                                 <div className="row p-2 pl-3 pr-3">
 
-                                    <div className="form-control col-7 pl-2 pr-2">
+                                    <div className="col-7" style={{zIndex:99999999999}}>
                                         <Autosuggest
                                             suggestions={suggestions}
                                             onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
