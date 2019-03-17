@@ -13,6 +13,7 @@ class Home extends React.Component {
         this.getOrdersForUser = this.getOrdersForUser.bind(this)
         this.modalClose = this.modalClose.bind(this)
         this.showCreateOrder = this.showCreateOrder.bind(this)
+        this.orderDetailsClicked = this.orderDetailsClicked.bind(this)
 
 
         this.state = {
@@ -67,6 +68,15 @@ class Home extends React.Component {
         })
     }
 
+    orderDetailsClicked(orderId){
+        this.setState({
+            modalData:{
+                modalMode :'edit',
+                modalShow : true
+            }
+        })
+    }
+
     componentDidMount() {
         this.getOrdersForUser()
     }
@@ -107,11 +117,14 @@ class Home extends React.Component {
                     </div>
 
                     <div>
-                        <OrderBar orderName="Morning Order" dateCreated="20-10-2019" orderStatus="open"/>
-                        <OrderBar orderName="Morning Order" dateCreated="20-10-2019" orderStatus="open"/>
-                        <OrderBar orderName="Morning Order" dateCreated="20-10-2019" orderStatus="open"/>
-                        <OrderBar orderName="Morning Order" dateCreated="20-10-2019" orderStatus="open"/>
-                        <OrderBar orderName="Morning Order" dateCreated="20-10-2019" orderStatus="open"/>
+                        <OrderBar orderName="Morning Order" dateCreated="20-10-2019" orderStatus="open"
+                                  onDetailsClick={this.orderDetailsClicked} orderId="1"/>
+
+                        <OrderBar orderName="Morning Order" dateCreated="20-10-2019" orderStatus="open"
+                                  onDetailsClick={this.orderDetailsClicked} orderId="1"/>
+
+                        <OrderBar orderName="Morning Order" dateCreated="20-10-2019" orderStatus="open"
+                                  onDetailsClick={this.orderDetailsClicked} orderId="1"/>
                     </div>
 
 

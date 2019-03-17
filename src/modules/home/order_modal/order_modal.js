@@ -3,6 +3,8 @@ import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import OrderItem from "./order-item";
+import ReactNotification from "react-notifications-component";
+import "react-notifications-component/dist/theme.css";
 
 class OrderModal extends React.Component {
 
@@ -10,19 +12,68 @@ class OrderModal extends React.Component {
         super()
         this.state = {
             modalMode: 'create',
+            orderStatus: 'open',
             orderItems: null
         }
 
         console.log(this.props)
-
+        this.addNotification = this.addNotification.bind(this);
+        this.notificationDOMRef = React.createRef();
     }
 
     componentDidMount() {
         console.log('om', this.props)
-        this.setState({modalMode : this.props.mode})
+        this.setState({modalMode: this.props.mode})
     }
 
     loadItemsForOrder() {
+
+    }
+
+    addNotification(success) {
+
+        let title = success ? "Success" : "Error"
+        let type = success ? "success" : "danger"
+        let message = success ? "Order Successfully created" : "Order creation failed"
+
+        this.notificationDOMRef.current.addNotification({
+             title,
+             message,
+             type,
+            insert: "top",
+            container: "top-right",
+            animationIn: ["animated", "fadeIn"],
+            animationOut: ["animated", "fadeOut"],
+            dismiss: { duration: 3000 },
+            dismissable: { click: true }
+        });
+    }
+
+    doCreateOrder(){
+        let user = JSON.parse(localStorage.getItem("user"))
+        let newOrder = {
+            "orderName": this.refs.orderName.value,
+            "userId" : user.id
+        }
+
+        fetch('http://localhost:8090/api/orders', {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify(newOrder)
+        }).then(response => response.json()
+            .then(data => {
+                if (response.status === 201) {
+                    this.setState({modalMode: 'edit', orderStatus:'open'})
+                    this.addNotification(true)
+                } else {
+                    this.addNotification(true)
+                }
+            }))
+            .catch( response => {
+                // this.setState({loginMessage: data.message})
+                this.addNotification()
+                this.setState({loginMessage: "Login Failed.. Please try again"})
+            })
 
     }
 
@@ -33,6 +84,8 @@ class OrderModal extends React.Component {
                 {...this.props}
                 size="lg"
             >
+                <ReactNotification ref={this.notificationDOMRef} />
+
                 <Modal.Header closeLabel="Close" closeButton>
                     <Modal.Title id="contained-modal-title-vcenter">
                         Order Details
@@ -43,11 +96,21 @@ class OrderModal extends React.Component {
                 <Modal.Body>
                     <div className="form-inline p-2">
                         <label htmlFor="orderName" className="control-label col-2"> Order Name </label>
-                        <input name="orderName" className="form-control col-6" type="text" disabled={false}
+                        <input name="orderName"
+                               className="form-control col-6"
+                               type="text"
+                               disabled={false}
+                               ref="orderName"
                                placeholder='Name...'/>
-                        <button className="col-3 ml-3 btn btn-primary" onClick={()=>this.setState({modalMode:'edit'})}> {
-                            this.state.modalMode === 'create' ? 'Create' : 'Edit'
-                        }</button>
+                        <button className="col-3 ml-3 btn btn-primary"
+                                onClick={
+                                    () => this.state.modalMode === 'create' ? this.doCreateOrder() : null
+                                }
+                        >
+                            {
+                                this.state.modalMode === 'create' ? 'Create' : 'Edit'
+                            }
+                        </button>
                     </div>
 
 
