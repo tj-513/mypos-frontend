@@ -3,33 +3,38 @@ import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import OrderItem from "./order-item";
+import Autosuggest from 'react-autosuggest';
 import ReactNotification from "react-notifications-component";
 import "react-notifications-component/dist/theme.css";
 
 class OrderModal extends React.Component {
+
 
     constructor() {
         super()
         this.state = {
             modalMode: 'create',
             orderStatus: 'open',
-            orderItems: []
+            orderItems: [],
+            itemSuggestions:[],
+            itemValue:''
         }
 
         console.log(this.props)
         this.addNotification = this.addNotification.bind(this);
         this.loadOrderDetails = this.loadOrderDetails.bind(this)
+        this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this)
         this.notificationDOMRef = React.createRef();
     }
 
     componentDidMount() {
         console.log('om', this.props)
         this.setState({modalMode: this.props.mode})
-        this.loadOrderDetails()
+        if (this.props.mode === 'edit') this.loadOrderDetails();
 
     }
 
-    loadOrderDetails(){
+    loadOrderDetails() {
         let orderId = this.props.orderId
 
 
@@ -57,23 +62,23 @@ class OrderModal extends React.Component {
         let message = success ? "Order Successfully created" : "Order creation failed"
 
         this.notificationDOMRef.current.addNotification({
-             title,
-             message,
-             type,
+            title,
+            message,
+            type,
             insert: "top",
             container: "top-right",
             animationIn: ["animated", "fadeIn"],
             animationOut: ["animated", "fadeOut"],
-            dismiss: { duration: 3000 },
-            dismissable: { click: true }
+            dismiss: {duration: 3000},
+            dismissable: {click: true}
         });
     }
 
-    doCreateOrder(){
+    doCreateOrder() {
         let user = JSON.parse(localStorage.getItem("user"))
         let newOrder = {
             "orderName": this.refs.orderName.value,
-            "userId" : user.id
+            "userId": user.id
         }
 
         fetch('http://localhost:8090/api/orders', {
@@ -83,13 +88,13 @@ class OrderModal extends React.Component {
         }).then(response => response.json()
             .then(data => {
                 if (response.status === 201) {
-                    this.setState({modalMode: 'edit', orderStatus:'open'})
+                    this.setState({modalMode: 'edit', orderStatus: 'open'})
                     this.addNotification(true)
                 } else {
                     this.addNotification(true)
                 }
             }))
-            .catch( response => {
+            .catch(response => {
                 // this.setState({loginMessage: data.message})
                 this.addNotification()
                 this.setState({loginMessage: "Login Failed.. Please try again"})
@@ -97,14 +102,60 @@ class OrderModal extends React.Component {
 
     }
 
+
+
+    getSuggestionValue = suggestion => suggestion.itemName;
+
+
+    renderSuggestion = suggestion => (
+        <div className="bg-light rounded m-1 p-3" style={ {zIndex:99999, background:'#ffffff'} }>
+            {suggestion.itemName}
+        </div>
+    );
+
+    onSuggestionsFetchRequested(value) {
+        console.log(value);
+        fetch(`http://localhost:8090/api/items/search/${value.value}`)
+            .then(response => response.json())
+            .then(data => this.setState({ itemSuggestions: data }))
+    }
+
+    // Autosuggest will call this function every time you need to clear suggestions.
+    onSuggestionsClearRequested = () => {
+        this.setState({
+            itemSuggestions: []
+        });
+    };
+
+    onChange = (event, { newValue, method }) => {
+        this.setState({ itemValue: newValue });
+    }
+
+    onSuggestionSelected = (event, { suggestion}) =>{
+        console.log('selected ', suggestion)
+    };
+
     render() {
+        let username = JSON.parse(localStorage.getItem("user")).username;
+        let now = new Date(Date.now());
+        let defaultOrderName = `${username}-${now.getFullYear()}${now.getMonth()}${now.getDate()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}`
+
+        const value = this.state.itemValue;
+        const suggestions = this.state.itemSuggestions;
+
+        const inputProps = {
+            placeholder: 'Type item name',
+            value,
+            onChange: this.onChange
+        };
+
         return (
             <Modal
                 onHide={this.props.onHide}
                 show={this.props.show}
                 size="lg"
             >
-                <ReactNotification ref={this.notificationDOMRef} />
+                <ReactNotification ref={this.notificationDOMRef}/>
 
                 <Modal.Header closeLabel="Close" closeButton>
                     <Modal.Title id="contained-modal-title-vcenter">
@@ -117,6 +168,7 @@ class OrderModal extends React.Component {
                     <div className="form-inline p-2">
                         <label htmlFor="orderName" className="control-label col-2"> Order Name </label>
                         <input name="orderName"
+                               defaultValue={this.state.modalMode === 'create' ? defaultOrderName : 'val'}
                                className="form-control col-6"
                                type="text"
                                disabled={false}
@@ -135,13 +187,26 @@ class OrderModal extends React.Component {
 
 
                     <div>
-                        <div style={this.state.modalMode === 'create' ? {display: 'none'} : {}}
+                        <div style={
+                            this.state.modalMode === 'create' ? {display: 'none'} : {}}
                              className="container border border-primary p-2 rounded">
                             <div className="p-1 h5">Add Item</div>
                             <div>
                                 <div className="row p-2 pl-3 pr-3">
-                                    <input placeholder="Type item name here.." className="form-control col-7 pl-2 pr-2"
-                                           ref="itemName" type="text"/>
+
+                                    <div className="form-control col-7 pl-2 pr-2">
+                                        <Autosuggest
+                                            suggestions={suggestions}
+                                            onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                                            onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                                            getSuggestionValue={this.getSuggestionValue}
+                                            renderSuggestion={this.renderSuggestion}
+                                            onSuggestionSelected={this.onSuggestionSelected}
+                                            inputProps={inputProps}
+                                        />
+                                    </div>
+
+
                                     <span className="col-1 vcenter">X</span>
                                     <input placeholder="Quantity" className="form-control col-4 pl-2 pr-2"
                                            ref="itemName" type="number" min="1" max="100"/>
@@ -160,7 +225,10 @@ class OrderModal extends React.Component {
 
                         {/* order details start here*/}
                         <div className="container border border-primary p-2 mt-1 rounded"
-                             style={this.state.modalMode === 'create' ? {display: 'none'} : {}}
+
+                             style={
+                                 this.state.modalMode === 'create' || this.state.orderItems.length === 0
+                                     ? {display: 'none'} : {}}
                         >
                             <div className="p-1 h5">Order Items</div>
                             <div>
