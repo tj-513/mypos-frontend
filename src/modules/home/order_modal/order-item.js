@@ -5,15 +5,16 @@ import {MdSave, MdRemoveCircle} from "react-icons/md";
 class OrderItem extends React.Component {
 
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
 
         this.state = {
             quantityChanged: false,
             itemQuantity: 0
-        }
+        };
 
         this.onQuantityChange = this.onQuantityChange.bind(this)
+        this.doSaveQuantity = this.doSaveQuantity.bind(this)
 
     }
 
@@ -21,8 +22,7 @@ class OrderItem extends React.Component {
         this.setState({itemQuantity: this.props.quantity})
     }
 
-    onQuantityChange(event){
-        console.log(this.state)
+    onQuantityChange(event) {
         this.setState(
             {
                 itemQuantity: event.target.value,
@@ -30,13 +30,39 @@ class OrderItem extends React.Component {
             })
     }
 
-    onOrderItemSave(){
+    doSaveQuantity() {
+
+        let user = JSON.parse(localStorage.getItem("user"));
+        let newOrderItem =
+            {
+                "itemId": this.props.itemId,
+                "orderId": this.props.orderId,
+                "quantity": this.state.itemQuantity,
+                "userId": user.id
+            };
+
+        fetch('http://localhost:8090/api/orders/changeItemQuantity', {
+            method: 'PUT',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify(newOrderItem)
+        }).then(response => response.json()
+            .then(data => {
+                if (response.ok) {
+                    this.props.addNotification(true, "Order Item Successfully Updated");
+                    this.setState({quantityChanged:false});
+                    this.props.onQuantityChanged(data);
+                } else {
+                    this.props.addNotification(false, data.message);
+                }
+            }))
+            .catch(() => {
+                this.props.addNotification(false, "Order Item Update Failed")
+            })
 
     }
 
     render() {
 
-        console.log('order-item', this.props);
         return (
             <div className="pl-3 pr-3 pt-1 pb-1 m-1 border rounded bg-order-item">
                 <div className="row text-center vcenter ">
@@ -45,7 +71,11 @@ class OrderItem extends React.Component {
 
 
                     <span className="col-2">
-                        <input type="number" className="form-control text-center" defaultValue={this.props.quantity}
+                        <input type="number"
+                               min ={0}
+                               max = {this.props.amountAvailable}
+                               className="form-control text-center"
+                               defaultValue={this.props.quantity}
                                onChange={this.onQuantityChange}
                         />
 
@@ -57,7 +87,7 @@ class OrderItem extends React.Component {
                      <button type="button"
                              className={`col-6 btn btn-primary btn-sm`}
                              disabled={!this.state.quantityChanged}
-                             onClick={this.onOrderItemSave}
+                             onClick={this.doSaveQuantity}
                      >
                         <MdSave/>
                     </button>
@@ -70,7 +100,7 @@ class OrderItem extends React.Component {
                 </div>
             </div>
         )
-            ;
+
     }
 
 }

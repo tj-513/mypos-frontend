@@ -14,7 +14,6 @@ class OrderModal extends React.Component {
     constructor(props) {
         super(props);
 
-        console.log('props', props);
         this.state = {
             modalMode: 'create',
             orderStatus: 'open',
@@ -27,18 +26,17 @@ class OrderModal extends React.Component {
             orderId: 0
         };
 
-        console.log(this.props);
         this.addNotification = this.addNotification.bind(this);
         this.loadOrderDetails = this.loadOrderDetails.bind(this);
         this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
         this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
         this.doAddOrderItem = this.doAddOrderItem.bind(this);
+        this.onQuantityChanged = this.onQuantityChanged.bind(this);
         this.notificationDOMRef = React.createRef();
     }
 
 
     componentDidMount() {
-        console.log('om', this.props);
         this.setState(
             {
                 modalMode: this.props.mode,
@@ -69,8 +67,25 @@ class OrderModal extends React.Component {
         });
     }
 
+    // gets called from order-item component after successful update of order qty
+    onQuantityChanged(orderItem){
+        console.log('onqty', orderItem, this.state.orderItems);
 
-    /** Start Network callbacks */
+        this.setState(prevState=>{
+            let existing = prevState.orderItems.find(
+                item => item.itemId === orderItem.itemId
+            );
+
+            if(existing){
+                existing.quantity = orderItem.quantity;
+            }
+            return prevState;
+        });
+
+    }
+
+
+    /** Start Network calls */
 
 
     loadOrderDetails() {
@@ -81,16 +96,13 @@ class OrderModal extends React.Component {
         }).then(response => response.json()
             .then(data => {
                 if (response.ok) {
-                    console.log('Orders Items retrieval Success:', data);
                     this.setState({orderItems: data})
                 } else {
                     this.addNotification(false, "Order Items Retrieval Failed");
-                    console.log('Order retrieval failed', data)
                 }
             }))
             .catch(e => {
                 this.addNotification(false, "Order Items Retrieval Failed");
-                console.log('error occurred', e)
             })
     }
 
@@ -136,7 +148,6 @@ class OrderModal extends React.Component {
             body: JSON.stringify(newOrderItem)
         }).then(response => response.json()
             .then(data => {
-                console.log('Created-Order-Item', data);
                 if (response.ok) {
                     this.setState(previousState => previousState.orderItems.push(data));
                     this.addNotification(true, "Order Item Successfully added");
@@ -149,6 +160,7 @@ class OrderModal extends React.Component {
             })
 
     }
+
     /** End Network calls */
 
 
@@ -163,7 +175,6 @@ class OrderModal extends React.Component {
     );
 
     onSuggestionsFetchRequested(value) {
-        console.log(value);
         fetch(`http://localhost:8090/api/items/search/${value.value}`)
             .then(response => response.json())
             .then(data => this.setState({itemSuggestions: data}))
@@ -181,7 +192,6 @@ class OrderModal extends React.Component {
     };
 
     onSuggestionSelected = (event, {suggestion}) => {
-        console.log('selected ', suggestion);
         this.setState({
                 newItemSelected: true,
                 newItem: suggestion
@@ -325,9 +335,12 @@ class OrderModal extends React.Component {
                                             key={`${orderItem.itemId}${orderItem.orderId}`}
                                             itemName={orderItem.item.itemName}
                                             unitPrice={orderItem.item.unitPrice}
+                                            amountAvailable = {orderItem.item.amountAvailable}
                                             quantity={orderItem.quantity}
                                             orderId={orderItem.orderId}
                                             itemId={orderItem.itemId}
+                                            onQuantityChanged={this.onQuantityChanged}
+                                            addNotification={this.addNotification}
                                         />
                                     ))
                                 }
