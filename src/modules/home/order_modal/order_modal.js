@@ -6,6 +6,7 @@ import OrderItem from "./order-item";
 import Autosuggest from 'react-autosuggest';
 import ReactNotification from "react-notifications-component";
 import "react-notifications-component/dist/theme.css";
+import './order-modal.css';
 
 class OrderModal extends React.Component {
 
@@ -38,7 +39,7 @@ class OrderModal extends React.Component {
         let orderId = this.props.orderId
 
 
-        fetch(`http://localhost:8090/api/orders/${orderId}`, {
+        fetch(`http://localhost:8090//api/orders/items/${orderId}`, {
             method: 'GET',
         }).then(response => response.json()
             .then(data => {
@@ -108,7 +109,7 @@ class OrderModal extends React.Component {
 
 
     renderSuggestion = suggestion => (
-        <span className="bg-light rounded m-1 p-3 border border-dark" style={ {zIndex:99999, background:'#ffffff'} }>
+        <span style={ {zIndex:99999, background:'#ffffff'} }>
             {suggestion.itemName}
         </span>
     );
@@ -194,7 +195,7 @@ class OrderModal extends React.Component {
                             <div>
                                 <div className="row p-2 pl-3 pr-3">
 
-                                    <div className="col-7" style={{zIndex:99999999999}}>
+                                    <div className="col-7" >
                                         <Autosuggest
                                             suggestions={suggestions}
                                             onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
