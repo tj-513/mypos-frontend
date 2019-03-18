@@ -7,6 +7,7 @@ import Autosuggest from 'react-autosuggest';
 import ReactNotification from "react-notifications-component";
 import "react-notifications-component/dist/theme.css";
 import './order-modal.css';
+import OrderBar from "../home";
 
 class OrderModal extends React.Component {
 
@@ -17,50 +18,43 @@ class OrderModal extends React.Component {
             modalMode: 'create',
             orderStatus: 'open',
             orderItems: [],
-            itemSuggestions:[],
-            itemValue:''
-        }
+            itemSuggestions: [],
+            itemValue: '',
+            newItemSelected: false,
+            newItemQuantity: 0,
+            newItem: {},
+            orderId: 0
+        };
 
         console.log(this.props)
         this.addNotification = this.addNotification.bind(this);
-        this.loadOrderDetails = this.loadOrderDetails.bind(this)
-        this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this)
+        this.loadOrderDetails = this.loadOrderDetails.bind(this);
+        this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
+        this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
+        this.doAddOrderItem = this.doAddOrderItem.bind(this);
         this.notificationDOMRef = React.createRef();
     }
 
+    quantity
+
     componentDidMount() {
         console.log('om', this.props)
-        this.setState({modalMode: this.props.mode})
+        this.setState(
+            {
+                modalMode: this.props.mode,
+                orderId: this.props.orderId
+            });
         if (this.props.mode === 'edit') this.loadOrderDetails();
 
     }
 
-    loadOrderDetails() {
-        let orderId = this.props.orderId
 
 
-        fetch(`http://localhost:8090//api/orders/items/${orderId}`, {
-            method: 'GET',
-        }).then(response => response.json()
-            .then(data => {
-                if (response.ok) {
-                    console.log('Orders Items retrieval Success:', data)
-                    this.setState({orderItems: data})
-                } else {
-                    console.log('Order retrieval failed', data)
-                }
-            }))
-            .catch(e => {
-                console.log('error occurred', e)
-            })
-    }
 
-
-    addNotification(success) {
+    addNotification(success, message) {
 
         let title = success ? "Success" : "Error"
         let type = success ? "success" : "danger"
-        let message = success ? "Order Successfully created" : "Order creation failed"
 
         this.notificationDOMRef.current.addNotification({
             title,
@@ -73,6 +67,31 @@ class OrderModal extends React.Component {
             dismiss: {duration: 3000},
             dismissable: {click: true}
         });
+    }
+
+
+    /** Start Network callbacks */
+
+
+    loadOrderDetails() {
+        let orderId = this.props.orderId
+
+        fetch(`http://localhost:8090//api/orders/items/${orderId}`, {
+            method: 'GET',
+        }).then(response => response.json()
+            .then(data => {
+                if (response.ok) {
+                    console.log('Orders Items retrieval Success:', data)
+                    this.setState({orderItems: data})
+                } else {
+                    this.addNotification(false, "Order Items Retrieval Failed");
+                    console.log('Order retrieval failed', data)
+                }
+            }))
+            .catch(e => {
+                this.addNotification(false, "Order Items Retrieval Failed");
+                console.log('error occurred', e)
+            })
     }
 
     doCreateOrder() {
@@ -89,27 +108,57 @@ class OrderModal extends React.Component {
         }).then(response => response.json()
             .then(data => {
                 if (response.status === 201) {
-                    this.setState({modalMode: 'edit', orderStatus: 'open'})
-                    this.addNotification(true)
+                    this.setState({modalMode: 'edit', orderStatus: 'open', orderId:data.id})
+                    this.addNotification(true, "Order Successfully Created")
                 } else {
-                    this.addNotification(true)
+                    this.addNotification(false, "Order Creation Failed")
                 }
             }))
             .catch(response => {
                 // this.setState({loginMessage: data.message})
-                this.addNotification()
-                this.setState({loginMessage: "Login Failed.. Please try again"})
+                this.addNotification(false, "Order Creation Failed")
             })
 
     }
 
+    doAddOrderItem() {
+        let user = JSON.parse(localStorage.getItem("user"));
+        let newOrderItem =
+            {
+                "itemId": this.state.newItem.id,
+                "orderId": this.state.orderId,
+                "quantity": this.state.newItemQuantity,
+                "userId": user.id
+            };
+
+        fetch('http://localhost:8090/api/orders/addItem', {
+            method: 'PUT',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify(newOrderItem)
+        }).then(response => response.json()
+            .then(data => {
+                console.log('Created-Order-Item', data)
+                if (response.ok) {
+                    this.setState(previousState => previousState.orderItems.push(data));
+                    this.addNotification(true, "Order Item Successfully added");
+                } else {
+                    this.addNotification(false, data.message);
+                }
+            }))
+            .catch(response => {
+                this.addNotification(false, "Order Item Adding Failed")
+            })
+
+    }
+    /** End Autosuggest callbacks */
 
 
+
+    /** Start Autosuggest callbacks */
     getSuggestionValue = suggestion => suggestion.itemName;
 
-
     renderSuggestion = suggestion => (
-        <span style={ {zIndex:99999, background:'#ffffff'} }>
+        <span>
             {suggestion.itemName}
         </span>
     );
@@ -118,7 +167,7 @@ class OrderModal extends React.Component {
         console.log(value);
         fetch(`http://localhost:8090/api/items/search/${value.value}`)
             .then(response => response.json())
-            .then(data => this.setState({ itemSuggestions: data }))
+            .then(data => this.setState({itemSuggestions: data}))
     }
 
     // Autosuggest will call this function every time you need to clear suggestions.
@@ -128,13 +177,21 @@ class OrderModal extends React.Component {
         });
     };
 
-    onChange = (event, { newValue, method }) => {
-        this.setState({ itemValue: newValue });
+    onChange = (event, {newValue, method}) => {
+        this.setState({itemValue: newValue});
     }
 
-    onSuggestionSelected = (event, { suggestion}) =>{
+    onSuggestionSelected = (event, {suggestion}) => {
         console.log('selected ', suggestion)
+        this.setState({
+                newItemSelected: true,
+                newItem: suggestion
+            }
+        );
     };
+
+    /** End Autosuggest callbacks */
+
 
     render() {
         let username = JSON.parse(localStorage.getItem("user")).username;
@@ -195,7 +252,7 @@ class OrderModal extends React.Component {
                             <div>
                                 <div className="row p-2 pl-3 pr-3">
 
-                                    <div className="col-7" >
+                                    <div className="col-7">
                                         <Autosuggest
                                             suggestions={suggestions}
                                             onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
@@ -210,17 +267,32 @@ class OrderModal extends React.Component {
 
                                     <span className="col-1 vcenter">X</span>
                                     <input placeholder="Quantity" className="form-control col-4 pl-2 pr-2"
-                                           ref="itemName" type="number" min="1" max="100"/>
+                                           type="number" defaultValue={0}
+                                           onChange={(event) => {
+                                               this.setState({newItemQuantity: event.target.value})
+                                           }}
+                                           min={0}
+                                           max={this.state.newItem.amountAvailable}
+                                    />
 
                                 </div>
+                                {this.state.newItemSelected &&
                                 <div className="row pl-3 pr-3 pt-1 pb-1">
                                     <span className="col-3 small p-1"> Available : <span
-                                        className="h5">100</span></span>
+                                        className="h5">{this.state.newItem.amountAvailable}</span></span>
                                     <span className="col-3 small p-1"> Unit Price: <span
-                                        className="h5">50$</span></span>
-                                    <span className="col-3 small p-1"> Total: <span className="h4">500$</span></span>
-                                    <Button className="col-3 h5 pl-1 push-right"> Add Item</Button>
+                                        className="h5">{this.state.newItem.unitPrice}$</span></span>
+                                    <span className="col-3 small p-1"> Total: <span
+                                        className="h4">{
+                                        (this.state.newItem.unitPrice * this.state.newItemQuantity).toFixed(2)
+                                    }$</span></span>
+                                    <button className="col-3 h5 pl-1 push-right btn btn-primary"
+                                            onClick={this.doAddOrderItem}
+                                    > Add Item
+                                    </button>
                                 </div>
+
+                                }
                             </div>
                         </div>
 
@@ -236,19 +308,30 @@ class OrderModal extends React.Component {
 
                                 {/* table header */}
                                 <div className="pl-3 pr-3 pt-1 pb-1 m-1 border rounded bg-order-item-header">
-                                    <div className="row text-center vcenter small">
+                                    <div className="row text-center vcenter  enter small">
                                         <span className="col-2"> Item </span>
                                         <span className="col-1"> Unit Price </span>
-                                        <span className="col-2">Quantity</span>
+                                        <span className="col-3">Quantity</span>
                                         <span className="col-3 h5"> Total </span>
-                                        <span className="col-4"> Actions</span>
+                                        <span className="col-3"> Actions</span>
                                     </div>
 
                                 </div>
 
                                 {/* items */}
-                                <OrderItem/>
-                                <OrderItem/>
+
+                                {
+                                    this.state.orderItems.map((orderItem) => (
+                                        <OrderItem
+                                            key={`${orderItem.itemId}${orderItem.orderId}`}
+                                            itemName={orderItem.item.itemName}
+                                            unitPrice={orderItem.item.unitPrice}
+                                            quantity={orderItem.quantity}
+                                            orderId={orderItem.orderId}
+                                            itemId={orderItem.itemId}
+                                        />
+                                    ))
+                                }
 
 
                                 {/* summation*/}
