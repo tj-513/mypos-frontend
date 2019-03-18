@@ -1,11 +1,11 @@
 import Autosuggest from 'react-autosuggest';
-import Button from 'react-bootstrap/Button'
-import Modal from 'react-bootstrap/Modal'
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 import OrderItem from "./order-item";
 import React from 'react'
 import ReactNotification from "react-notifications-component";
 import './order-modal.css';
-import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/css/bootstrap.min.css';
 import "react-notifications-component/dist/theme.css";
 
 class OrderModal extends React.Component {
@@ -32,6 +32,7 @@ class OrderModal extends React.Component {
         this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
         this.doAddOrderItem = this.doAddOrderItem.bind(this);
         this.onQuantityChanged = this.onQuantityChanged.bind(this);
+        this.onOrderItemDeleted = this.onOrderItemDeleted.bind(this);
         this.notificationDOMRef = React.createRef();
     }
 
@@ -45,9 +46,6 @@ class OrderModal extends React.Component {
         if (this.props.mode === 'edit') this.loadOrderDetails();
 
     }
-
-
-
 
     addNotification(success, message) {
 
@@ -67,21 +65,26 @@ class OrderModal extends React.Component {
         });
     }
 
-    // gets called from order-item component after successful update of order qty
-    onQuantityChanged(orderItem){
-        console.log('onqty', orderItem, this.state.orderItems);
+    /** Order Item Child Callbacks*/
+    onQuantityChanged(itemId, quantity){
 
         this.setState(prevState=>{
             let existing = prevState.orderItems.find(
-                item => item.itemId === orderItem.itemId
+                item => item.itemId === itemId
             );
 
             if(existing){
-                existing.quantity = orderItem.quantity;
+                existing.quantity = quantity;
             }
             return prevState;
         });
 
+    }
+
+    onOrderItemDeleted(itemId){
+
+        let orderItemRemoved = [...this.state.orderItems].filter(orderItem => orderItem.itemId !== itemId);
+        this.setState({orderItems: orderItemRemoved});
     }
 
 
@@ -216,7 +219,13 @@ class OrderModal extends React.Component {
             onChange: this.onChange
         };
 
+        // calculates sum of all orders in this list
+        let sum = this.state.orderItems.reduce((a,b)=>a+(b.item.unitPrice*b.quantity),0);
+
         return (
+
+
+
             <Modal
                 onHide={this.props.onHide}
                 show={this.props.show}
@@ -296,6 +305,7 @@ class OrderModal extends React.Component {
                                         (this.state.newItem.unitPrice * this.state.newItemQuantity).toFixed(2)
                                     }$</span></span>
                                     <button className="col-3 h5 pl-1 push-right btn btn-primary"
+                                            disabled={this.state.newItemQuantity == 0}
                                             onClick={this.doAddOrderItem}
                                     > Add Item
                                     </button>
@@ -341,6 +351,7 @@ class OrderModal extends React.Component {
                                             itemId={orderItem.itemId}
                                             onQuantityChanged={this.onQuantityChanged}
                                             addNotification={this.addNotification}
+                                            onOrderItemDeleted={this.onOrderItemDeleted}
                                         />
                                     ))
                                 }
@@ -350,7 +361,7 @@ class OrderModal extends React.Component {
                                 <div className="pl-3 pr-3 pt-1 pb-1 m-1 border rounded bg-order-item-header">
                                     <div className="row text-center vcenter ">
                                         <span className="col-3 h4"> Total </span>
-                                        <span className="col-2 h4"> 100$ </span>
+                                        <span className="col-2 h4"> {sum.toFixed(2)}$ </span>
                                     </div>
 
                                 </div>
@@ -370,12 +381,7 @@ class OrderModal extends React.Component {
                     </span>
                     <Button
                         style={this.state.modalMode === 'create' ? {display: 'none'} : {}}
-                        variant="danger" onClick={this.props.onHide}>{(() => {
-                        let x = true;
-                        if (x) return "close order"
-                        else return "reopen order"
-                    })()}</Button>
-                    <Button variant="dark" onClick={this.props.onHide}>Close Window</Button>
+                        variant="danger" onClick={this.props.onHide}>Close Order</Button>
                 </Modal.Footer>
             </Modal>
         );
