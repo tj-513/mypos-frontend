@@ -14,7 +14,7 @@ class PosNavbar extends React.Component{
                 <Navbar.Collapse className="justify-content-end">
 
                     <Navbar.Text>
-                        <a> Sign Out </a>
+                        <button className='btn btn-light'> Sign Out </button>
                     </Navbar.Text>
                 </Navbar.Collapse>
             </Navbar>

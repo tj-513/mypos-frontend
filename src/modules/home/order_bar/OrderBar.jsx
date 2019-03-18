@@ -6,7 +6,7 @@ class OrderBar extends React.Component {
     constructor() {
         super();
 
-        this.onModalEntered = this.onModalEntered.bind(this)
+        this.onModalEntered = this.onModalEntered.bind(this);
         this.handleDetailsClick = this.handleDetailsClick.bind(this)
 
 

@@ -10,10 +10,10 @@ class Home extends React.Component {
     constructor() {
         super();
 
-        this.getOrdersForUser = this.getOrdersForUser.bind(this)
-        this.modalClose = this.modalClose.bind(this)
-        this.showCreateOrder = this.showCreateOrder.bind(this)
-        this.orderDetailsClicked = this.orderDetailsClicked.bind(this)
+        this.getOrdersForUser = this.getOrdersForUser.bind(this);
+        this.modalClose = this.modalClose.bind(this);
+        this.showCreateOrder = this.showCreateOrder.bind(this);
+        this.orderDetailsClicked = this.orderDetailsClicked.bind(this);
 
 
         this.state = {
@@ -29,16 +29,16 @@ class Home extends React.Component {
 
     getOrdersForUser() {
 
-        let user = localStorage.getItem("user")
-        user = JSON.parse(user)
-        console.log(user)
+        let user = localStorage.getItem("user");
+        user = JSON.parse(user);
+        console.log(user);
 
         fetch(`http://localhost:8090/api/users/orderlist/${user.id}`, {
             method: 'GET',
         }).then(response => response.json()
             .then(data => {
                 if (response.ok) {
-                    console.log('Orders retrieval Success:', data)
+                    console.log('Orders retrieval Success:', data);
                     this.setState({orders: data})
                 } else {
                     console.log('Order retrieval failed', data)

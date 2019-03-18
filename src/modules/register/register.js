@@ -8,20 +8,20 @@ class Register extends Component {
 
     constructor() {
         super();
-        this.doRegister = this.doRegister.bind(this)
-        this.redirectToLogin = this.redirectToLogin.bind(this)
+        this.doRegister = this.doRegister.bind(this);
+        this.redirectToLogin = this.redirectToLogin.bind(this);
         this.state = {
             registrationSuccess: false,
             showRegistrationStatus: false,
             successMessage: '',
-            emaiError: '',
+            emailError: '',
             passwordMatch: ''
         }
     }
 
 
     redirectToLogin() {
-        console.log('redirect from register')
+        console.log('redirect from register');
         this.props.history.push('login');
     }
 
@@ -43,8 +43,8 @@ class Register extends Component {
 
         if(emailError || passwordMatch){
 
-            this.setState({passwordMatch,emailError})
-            console.log(this.state)
+            this.setState({passwordMatch,emailError});
+            console.log(this.state);
             return false
         }
         return true;
@@ -59,7 +59,7 @@ class Register extends Component {
             "lastName": this.refs.lastName.value,
             "password": this.refs.password.value,
             "username": this.refs.username.value
-        }
+        };
 
         if(!this.validate()) return;
 
@@ -71,16 +71,16 @@ class Register extends Component {
         }).then(response => response.json()
             .then(data => {
                 if (response.ok) {
-                    console.log('Registration Success:', data)
-                    this.setState(prevState => prevState.registrationSuccess = true)
-                    this.setState(prevState => prevState.showRegistrationStatus = true)
+                    console.log('Registration Success:', data);
+                    this.setState(prevState => prevState.registrationSuccess = true);
+                    this.setState(prevState => prevState.showRegistrationStatus = true);
                     this.setState(prevState => prevState.successMessage = 'Registration Succeess! \nPlease Login to Continue')
                 } else {
                     if(400 <= response.status <= 500)
 
-                        this.setState(prevState => prevState.registrationSuccess = false)
-                        this.setState(prevState => prevState.showRegistrationStatus = true)
-                        this.setState(prevState => prevState.successMessage = 'Registration Failed ' + data.message)
+                        this.setState(prevState => prevState.registrationSuccess = false);
+                        this.setState(prevState => prevState.showRegistrationStatus = true);
+                        this.setState(prevState => prevState.successMessage = 'Registration Failed ' + data.message);
                         console.log('Registration fail', data)
                 }
             }))

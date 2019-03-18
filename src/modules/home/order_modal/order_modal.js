@@ -1,19 +1,20 @@
-import React from 'react'
-import Modal from 'react-bootstrap/Modal'
-import Button from 'react-bootstrap/Button'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import OrderItem from "./order-item";
 import Autosuggest from 'react-autosuggest';
+import Button from 'react-bootstrap/Button'
+import Modal from 'react-bootstrap/Modal'
+import OrderItem from "./order-item";
+import React from 'react'
 import ReactNotification from "react-notifications-component";
-import "react-notifications-component/dist/theme.css";
 import './order-modal.css';
-import OrderBar from "../home";
+import 'bootstrap/dist/css/bootstrap.min.css'
+import "react-notifications-component/dist/theme.css";
 
 class OrderModal extends React.Component {
 
 
-    constructor() {
-        super()
+    constructor(props) {
+        super(props);
+
+        console.log('props', props);
         this.state = {
             modalMode: 'create',
             orderStatus: 'open',
@@ -26,7 +27,7 @@ class OrderModal extends React.Component {
             orderId: 0
         };
 
-        console.log(this.props)
+        console.log(this.props);
         this.addNotification = this.addNotification.bind(this);
         this.loadOrderDetails = this.loadOrderDetails.bind(this);
         this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
@@ -35,10 +36,9 @@ class OrderModal extends React.Component {
         this.notificationDOMRef = React.createRef();
     }
 
-    quantity
 
     componentDidMount() {
-        console.log('om', this.props)
+        console.log('om', this.props);
         this.setState(
             {
                 modalMode: this.props.mode,
@@ -53,8 +53,8 @@ class OrderModal extends React.Component {
 
     addNotification(success, message) {
 
-        let title = success ? "Success" : "Error"
-        let type = success ? "success" : "danger"
+        let title = success ? "Success" : "Error";
+        let type = success ? "success" : "danger";
 
         this.notificationDOMRef.current.addNotification({
             title,
@@ -74,14 +74,14 @@ class OrderModal extends React.Component {
 
 
     loadOrderDetails() {
-        let orderId = this.props.orderId
+        let orderId = this.props.orderId;
 
         fetch(`http://localhost:8090//api/orders/items/${orderId}`, {
             method: 'GET',
         }).then(response => response.json()
             .then(data => {
                 if (response.ok) {
-                    console.log('Orders Items retrieval Success:', data)
+                    console.log('Orders Items retrieval Success:', data);
                     this.setState({orderItems: data})
                 } else {
                     this.addNotification(false, "Order Items Retrieval Failed");
@@ -95,11 +95,11 @@ class OrderModal extends React.Component {
     }
 
     doCreateOrder() {
-        let user = JSON.parse(localStorage.getItem("user"))
+        let user = JSON.parse(localStorage.getItem("user"));
         let newOrder = {
             "orderName": this.refs.orderName.value,
             "userId": user.id
-        }
+        };
 
         fetch('http://localhost:8090/api/orders', {
             method: 'POST',
@@ -108,14 +108,13 @@ class OrderModal extends React.Component {
         }).then(response => response.json()
             .then(data => {
                 if (response.status === 201) {
-                    this.setState({modalMode: 'edit', orderStatus: 'open', orderId:data.id})
-                    this.addNotification(true, "Order Successfully Created")
+                    this.setState({modalMode: 'edit', orderStatus: 'open', orderId:data.id});
+                    this.addNotification(true, "Order Successfully Created");
                 } else {
-                    this.addNotification(false, "Order Creation Failed")
+                    this.addNotification(false, "Order Creation Failed");
                 }
             }))
-            .catch(response => {
-                // this.setState({loginMessage: data.message})
+            .catch(() => {
                 this.addNotification(false, "Order Creation Failed")
             })
 
@@ -137,7 +136,7 @@ class OrderModal extends React.Component {
             body: JSON.stringify(newOrderItem)
         }).then(response => response.json()
             .then(data => {
-                console.log('Created-Order-Item', data)
+                console.log('Created-Order-Item', data);
                 if (response.ok) {
                     this.setState(previousState => previousState.orderItems.push(data));
                     this.addNotification(true, "Order Item Successfully added");
@@ -145,12 +144,12 @@ class OrderModal extends React.Component {
                     this.addNotification(false, data.message);
                 }
             }))
-            .catch(response => {
+            .catch(() => {
                 this.addNotification(false, "Order Item Adding Failed")
             })
 
     }
-    /** End Autosuggest callbacks */
+    /** End Network calls */
 
 
 
@@ -177,12 +176,12 @@ class OrderModal extends React.Component {
         });
     };
 
-    onChange = (event, {newValue, method}) => {
+    onChange = (event, {newValue}) => {
         this.setState({itemValue: newValue});
-    }
+    };
 
     onSuggestionSelected = (event, {suggestion}) => {
-        console.log('selected ', suggestion)
+        console.log('selected ', suggestion);
         this.setState({
                 newItemSelected: true,
                 newItem: suggestion
@@ -196,7 +195,7 @@ class OrderModal extends React.Component {
     render() {
         let username = JSON.parse(localStorage.getItem("user")).username;
         let now = new Date(Date.now());
-        let defaultOrderName = `${username}-${now.getFullYear()}${now.getMonth()}${now.getDate()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}`
+        let defaultOrderName = `${username}-${now.getFullYear()}${now.getMonth()}${now.getDate()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}`;
 
         const value = this.state.itemValue;
         const suggestions = this.state.itemSuggestions;
