@@ -113,10 +113,10 @@ class Home extends React.Component {
                     </div>
 
                     <div className="row order-bar-container">
-                        <span className="col">Name</span>
-                        <span className="col">Status</span>
-                        <span className="col">Date Created</span>
-                        <span className="col">Actions</span>
+                        <span className="col-3">Name</span>
+                        <span className="col-2">Status</span>
+                        <span className="col-4">Date Created</span>
+                        <span className="col-3">Actions</span>
                     </div>
 
                     <div>
