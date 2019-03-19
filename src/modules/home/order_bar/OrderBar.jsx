@@ -20,7 +20,7 @@ class OrderBar extends React.Component {
 
     }
 
-    doDeleteOrder(){
+    doDeleteOrder() {
         let orderId = this.props.orderId;
 
         fetch(`http://localhost:8090/api/orders/${orderId}`, {
@@ -47,24 +47,24 @@ class OrderBar extends React.Component {
 
         return (
 
-           <div>
+            <div>
                 {this.state.deleteConfirmation ?
 
-                        <div className="row order-bar-container">
+                    <div className="row order-bar-container" style={{backgroundColor: '#ffc2b3'}}>
                         <span className="vcenter col-3 border-right">{this.props.orderName}</span>
-                        <span className="vcenter col-4">Are you sure want to delete ?</span>
+                        <span className="vcenter col-4 h5">Are you sure ?</span>
                         <span className="vcenter col-5">
                             <button className="btn btn-danger col-5 mr-1"
                                     onClick={this.doDeleteOrder}>Delete</button>
                             <button className="btn btn-primary col-5 mr-1"
-                                    onClick={()=>this.setState({deleteConfirmation : false})}
-                                    >Keep</button>
+                                    onClick={() => this.setState({deleteConfirmation: false})}
+                            >Keep</button>
                         </span>
 
                     </div>
 
                     :
-                        <div className="row order-bar-container">
+                    <div className="row order-bar-container">
                         <span className="vcenter col-3">{this.props.orderName}</span>
                         <span
                             className={
@@ -76,8 +76,8 @@ class OrderBar extends React.Component {
                     <button className="btn btn-info btn-space"
                             onClick={this.handleDetailsClick}>Details</button>
                     <button className="btn btn-danger btn-space"
-                            onClick={()=>this.setState({deleteConfirmation : true})}
-                            >Delete</button>
+                            onClick={() => this.setState({deleteConfirmation: true})}
+                    >Delete</button>
                     </span>
                     </div>
                 }

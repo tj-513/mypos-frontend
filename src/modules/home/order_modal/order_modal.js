@@ -126,7 +126,7 @@ class OrderModal extends React.Component {
                 if (response.status === 201) {
                     this.setState({modalMode: 'edit', orderStatus: 'open', orderId:data.id});
                     this.props.onNewOrderAdded(data);
-                    this.addNotification(true, "Order Successfully Created");
+                    this.addNotification(true, ` Created Order {${data.orderName}}` );
                 } else {
                     this.addNotification(false, "Order Creation Failed");
                 }
@@ -154,13 +154,25 @@ class OrderModal extends React.Component {
         }).then(response => response.json()
             .then(data => {
                 if (response.ok) {
-                    this.setState(previousState => previousState.orderItems.push(data));
-                    this.addNotification(true, "Order Item Successfully added");
+                    this.setState(previousState => {
+                        previousState.orderItems.push(data);
+                        previousState.newItemSelected = false;
+                        previousState.newItemQuantity = 0;
+                        return previousState;
+                    });
+
+                    // clear auto-suggest input
+                    this.refs.autosuggestItemName.props.inputProps.value = '';
+                    this.refs.autosuggestItemName.input.value = '';
+                    this.refs.autosuggestItemName.input.focus();
+
+                    this.addNotification(true, `Added Order Item {${data.item.itemName}}`);
                 } else {
                     this.addNotification(false, data.message);
                 }
             }))
-            .catch(() => {
+            .catch((e) => {
+                console.log(e);
                 this.addNotification(false, "Order Item Adding Failed")
             })
 
@@ -182,7 +194,11 @@ class OrderModal extends React.Component {
     onSuggestionsFetchRequested(value) {
         fetch(`http://localhost:8090/api/items/search/${value.value}`)
             .then(response => response.json())
-            .then(data => this.setState({itemSuggestions: data}))
+            .then(data => {
+                const itemIds = this.state.orderItems.map(orderItem=>orderItem.itemId);
+                const filteredSuggestions = data.filter(item=> !(itemIds.includes(item.id)))
+                this.setState({itemSuggestions: filteredSuggestions})
+            })
     }
 
     // Autosuggest will call this function every time you need to clear suggestions.
@@ -274,6 +290,7 @@ class OrderModal extends React.Component {
 
                                     <div className="col-7">
                                         <Autosuggest
+                                            ref = 'autosuggestItemName'
                                             suggestions={suggestions}
                                             onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
                                             onSuggestionsClearRequested={this.onSuggestionsClearRequested}
@@ -287,7 +304,9 @@ class OrderModal extends React.Component {
 
                                     <span className="col-1 vcenter">X</span>
                                     <input placeholder="Quantity" className="form-control col-4 pl-2 pr-2"
-                                           type="number" defaultValue={0}
+                                           type="number"
+                                           disabled={!this.state.newItemSelected}
+                                           value={this.state.newItemQuantity}
                                            onChange={(event) => {
                                                this.setState({newItemQuantity: event.target.value})
                                            }}
