@@ -7,6 +7,7 @@ import ReactNotification from "react-notifications-component";
 import './order-modal.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "react-notifications-component/dist/theme.css";
+import OrderBar from "../home";
 
 class OrderModal extends React.Component {
 
@@ -124,6 +125,7 @@ class OrderModal extends React.Component {
             .then(data => {
                 if (response.status === 201) {
                     this.setState({modalMode: 'edit', orderStatus: 'open', orderId:data.id});
+                    this.props.onNewOrderAdded(data);
                     this.addNotification(true, "Order Successfully Created");
                 } else {
                     this.addNotification(false, "Order Creation Failed");

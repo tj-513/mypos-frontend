@@ -7,13 +7,15 @@ import OrderBar from "./order_bar/OrderBar";
 import OrderModal from "./order_modal/order_modal";
 
 class Home extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
 
         this.getOrdersForUser = this.getOrdersForUser.bind(this);
         this.modalClose = this.modalClose.bind(this);
         this.showCreateOrder = this.showCreateOrder.bind(this);
-        this.orderDetailsClicked = this.orderDetailsClicked.bind(this);
+        this.onOrderDetailsClicked = this.onOrderDetailsClicked.bind(this);
+        this.onNewOrderAdded = this.onNewOrderAdded.bind(this);
+        this.onOrderDeleted = this.onOrderDeleted.bind(this);
 
 
         this.state = {
@@ -68,7 +70,7 @@ class Home extends React.Component {
         })
     }
 
-    orderDetailsClicked(orderId){
+    onOrderDetailsClicked(orderId){
         this.setState({
             modalData:{
                 modalMode :'edit',
@@ -77,6 +79,17 @@ class Home extends React.Component {
             }
         })
     }
+
+    // upon creation of new order.. add to current order list
+    onNewOrderAdded(order){
+         this.setState(prevState=> prevState.orders.unshift(order));
+    }
+
+    onOrderDeleted(orderId){
+        let orderItemRemoved = [...this.state.orders].filter(order => order.id !== orderId);
+        this.setState({orders: orderItemRemoved});
+    }
+
 
     componentDidMount() {
         this.getOrdersForUser()
@@ -98,6 +111,7 @@ class Home extends React.Component {
                     show={this.state.modalData.modalShow}
                     orderId={this.state.modalData.modalOrderId}
                     onHide={this.modalClose}
+                    onNewOrderAdded = {this.onNewOrderAdded}
                 />
 
                 }
@@ -130,7 +144,9 @@ class Home extends React.Component {
                                     new Date( Date.parse(order.dateCreated)).toDateString()}
                                     orderStatus = {order.orderStatus}
                                     orderId = {order.id}
-                                    onDetailsClick = {this.orderDetailsClicked.bind(this)}
+                                    onDetailsClick = {this.onOrderDetailsClicked}
+                                    onOrderDeleted = {this.onOrderDeleted}
+
                                 />
                             ))
                         }
