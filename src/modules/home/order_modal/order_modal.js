@@ -2,12 +2,10 @@ import Autosuggest from 'react-autosuggest';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import OrderItem from "./order-item";
+import {NotificationManager} from 'react-notifications';
 import React from 'react'
-import ReactNotification from "react-notifications-component";
 import './order-modal.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import "react-notifications-component/dist/theme.css";
-import OrderBar from "../home";
 
 class OrderModal extends React.Component {
 
@@ -16,25 +14,29 @@ class OrderModal extends React.Component {
         super(props);
 
         this.state = {
-            modalMode: 'create',
-            orderStatus: 'open',
-            orderItems: [],
             itemSuggestions: [],
             itemValue: '',
-            newItemSelected: false,
-            newItemQuantity: 0,
+            modalMode: '',
             newItem: {},
-            orderId: 0
+            newItemQuantity: 0,
+            newItemSelected: false,
+            orderId: 0,
+            orderItems: [],
+            orderName: '',
+            orderStatus: 'open'
         };
 
-        this.addNotification = this.addNotification.bind(this);
-        this.loadOrderDetails = this.loadOrderDetails.bind(this);
+        this.doLoadOrderItems = this.doLoadOrderItems.bind(this);
         this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
         this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
         this.doAddOrderItem = this.doAddOrderItem.bind(this);
         this.onQuantityChanged = this.onQuantityChanged.bind(this);
         this.onOrderItemDeleted = this.onOrderItemDeleted.bind(this);
-        this.notificationDOMRef = React.createRef();
+        this.doGetOrderDetails = this.doGetOrderDetails.bind(this);
+        this.doCloseOrder = this.doCloseOrder.bind(this);
+        this.doRenameOrder = this.doRenameOrder.bind(this);
+        this.doRenameOrder = this.doRenameOrder.bind(this);
+
     }
 
 
@@ -42,39 +44,26 @@ class OrderModal extends React.Component {
         this.setState(
             {
                 modalMode: this.props.mode,
-                orderId: this.props.orderId
+                orderId: this.props.orderId,
+                orderStatus: this.props.orderStatus
             });
-        if (this.props.mode === 'edit') this.loadOrderDetails();
+        if (this.props.mode === 'edit') {
+            this.doGetOrderDetails();
+            this.doLoadOrderItems();
+        }
 
     }
 
-    addNotification(success, message) {
-
-        let title = success ? "Success" : "Error";
-        let type = success ? "success" : "danger";
-
-        this.notificationDOMRef.current.addNotification({
-            title,
-            message,
-            type,
-            insert: "top",
-            container: "top-right",
-            animationIn: ["animated", "fadeIn"],
-            animationOut: ["animated", "fadeOut"],
-            dismiss: {duration: 3000},
-            dismissable: {click: true}
-        });
-    }
 
     /** Order Item Child Callbacks*/
-    onQuantityChanged(itemId, quantity){
+    onQuantityChanged(itemId, quantity) {
 
-        this.setState(prevState=>{
+        this.setState(prevState => {
             let existing = prevState.orderItems.find(
                 item => item.itemId === itemId
             );
 
-            if(existing){
+            if (existing) {
                 existing.quantity = quantity;
             }
             return prevState;
@@ -82,7 +71,7 @@ class OrderModal extends React.Component {
 
     }
 
-    onOrderItemDeleted(itemId){
+    onOrderItemDeleted(itemId) {
 
         let orderItemRemoved = [...this.state.orderItems].filter(orderItem => orderItem.itemId !== itemId);
         this.setState({orderItems: orderItemRemoved});
@@ -90,9 +79,31 @@ class OrderModal extends React.Component {
 
 
     /** Start Network calls */
+    doGetOrderDetails() {
+        let orderId = this.props.orderId;
 
+        fetch(`http://localhost:8090/api/orders/${orderId}`, {
+            method: 'GET',
+        }).then(response => response.json()
+            .then(data => {
+                if (response.ok) {
+                    console.log('order data', data);
+                    this.setState(
+                        {
+                            orderName: data.orderName,
+                            orderStatus: data.orderStatus
+                        });
+                    console.log(this.state)
+                } else {
+                    NotificationManager.error(data.message, 'Error');
+                }
+            }))
+            .catch(e => {
+                NotificationManager.error("Order Items Retrieval Failed", 'Error');
+            })
+    }
 
-    loadOrderDetails() {
+    doLoadOrderItems() {
         let orderId = this.props.orderId;
 
         fetch(`http://localhost:8090//api/orders/items/${orderId}`, {
@@ -102,11 +113,11 @@ class OrderModal extends React.Component {
                 if (response.ok) {
                     this.setState({orderItems: data})
                 } else {
-                    this.addNotification(false, "Order Items Retrieval Failed");
+                    NotificationManager.error(data.message, 'Error');
                 }
             }))
             .catch(e => {
-                this.addNotification(false, "Order Items Retrieval Failed");
+                NotificationManager.error("Order Items Retrieval Failed", 'Error');
             })
     }
 
@@ -124,15 +135,18 @@ class OrderModal extends React.Component {
         }).then(response => response.json()
             .then(data => {
                 if (response.status === 201) {
-                    this.setState({modalMode: 'edit', orderStatus: 'open', orderId:data.id});
+                    this.setState({modalMode: 'edit', orderStatus: 'open', orderId: data.id});
+                    this.setState(data);
                     this.props.onNewOrderAdded(data);
-                    this.addNotification(true, ` Created Order {${data.orderName}}` );
+                    NotificationManager.success(` Created Order {${data.orderName}}`, 'Success');
                 } else {
-                    this.addNotification(false, "Order Creation Failed");
+                    NotificationManager.error(data.message, 'Error');
                 }
             }))
-            .catch(() => {
-                this.addNotification(false, "Order Creation Failed")
+            .catch((e) => {
+                console.log(e);
+                NotificationManager.error('Order Creation Failed', 'Error');
+
             })
 
     }
@@ -160,26 +174,90 @@ class OrderModal extends React.Component {
                         previousState.newItemQuantity = 0;
                         return previousState;
                     });
+                    console.log('add success', this)
 
-                    // clear auto-suggest input
-                    this.refs.autosuggestItemName.props.inputProps.value = '';
-                    this.refs.autosuggestItemName.input.value = '';
+                    this.state.itemValue = ''; // this will be set as text in suggest box
                     this.refs.autosuggestItemName.input.focus();
 
-                    this.addNotification(true, `Added Order Item {${data.item.itemName}}`);
+                    NotificationManager.success(`Added Order Item {${data.item.itemName}}`, 'Success');
                 } else {
-                    this.addNotification(false, data.message);
+                    NotificationManager.error(data.message, 'Error');
                 }
             }))
             .catch((e) => {
                 console.log(e);
-                this.addNotification(false, "Order Item Adding Failed")
+                NotificationManager.error('Order Item Adding Failed', 'Error');
+            })
+
+    }
+
+    doCloseOrder() {
+        let newOrder =
+            {
+                "id": this.state.orderId,
+                "orderStatus": 'closed',
+                "orderName": this.refs.orderName.value,
+
+            };
+
+        fetch('http://localhost:8090/api/orders', {
+            method: 'PUT',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify(newOrder)
+        }).then(response => response.json()
+            .then(data => {
+                if (response.ok) {
+                    this.setState({
+                        orderStatus: data.orderStatus,
+                        orderName: data.orderName
+                    });
+                    this.props.onOrderUpdated(data);
+                    NotificationManager.success('Order Successfully Closed', 'Success');
+                } else {
+                    NotificationManager.error(data.message, 'Error');
+                }
+            }))
+            .catch((e) => {
+                console.log(e);
+                NotificationManager.error('Order Item Adding Failed', 'Error');
+            })
+    }
+
+    doRenameOrder() {
+
+        let newOrder =
+            {
+                "id": this.state.orderId,
+                "orderStatus": this.state.orderStatus,
+                "orderName": this.refs.orderName.value,
+
+            };
+
+        fetch('http://localhost:8090/api/orders', {
+            method: 'PUT',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify(newOrder)
+        }).then(response => response.json()
+            .then(data => {
+                if (response.ok) {
+                    this.setState({
+                        orderStatus: data.orderStatus,
+                        orderName: data.orderName
+                    });
+                    this.props.onOrderUpdated(data);
+                    NotificationManager.success('Order Successfully Updated', 'Success');
+                } else {
+                    NotificationManager.error(data.message, 'Error');
+                }
+            }))
+            .catch((e) => {
+                console.log(e);
+                NotificationManager.error('Order Item Adding Failed', 'Error');
             })
 
     }
 
     /** End Network calls */
-
 
 
     /** Start Autosuggest callbacks */
@@ -195,8 +273,8 @@ class OrderModal extends React.Component {
         fetch(`http://localhost:8090/api/items/search/${value.value}`)
             .then(response => response.json())
             .then(data => {
-                const itemIds = this.state.orderItems.map(orderItem=>orderItem.itemId);
-                const filteredSuggestions = data.filter(item=> !(itemIds.includes(item.id)))
+                const itemIds = this.state.orderItems.map(orderItem => orderItem.itemId);
+                const filteredSuggestions = data.filter(item => !(itemIds.includes(item.id)))
                 this.setState({itemSuggestions: filteredSuggestions})
             })
     }
@@ -238,10 +316,9 @@ class OrderModal extends React.Component {
         };
 
         // calculates sum of all orders in this list
-        let sum = this.state.orderItems.reduce((a,b)=>a+(b.item.unitPrice*b.quantity),0);
+        let sum = this.state.orderItems.reduce((a, b) => a + (b.item.unitPrice * b.quantity), 0);
 
         return (
-
 
 
             <Modal
@@ -249,7 +326,6 @@ class OrderModal extends React.Component {
                 show={this.props.show}
                 size="lg"
             >
-                <ReactNotification ref={this.notificationDOMRef}/>
 
                 <Modal.Header closeLabel="Close" closeButton>
                     <Modal.Title id="contained-modal-title-vcenter">
@@ -261,20 +337,21 @@ class OrderModal extends React.Component {
                 <Modal.Body>
                     <div className="form-inline p-2">
                         <label htmlFor="orderName" className="control-label col-2"> Order Name </label>
-                        <input name="orderName"
-                               defaultValue={this.state.modalMode === 'create' ? defaultOrderName : 'val'}
-                               className="form-control col-6"
-                               type="text"
-                               disabled={false}
-                               ref="orderName"
-                               placeholder='Name...'/>
+                        <input
+                            defaultValue={this.state.modalMode === 'create' ? defaultOrderName : this.state.orderName}
+                            className="form-control col-6"
+                            type="text"
+                            disabled={this.state.orderStatus === 'closed'}
+                            ref="orderName"
+                            placeholder='Name...'/>
+
                         <button className="col-3 ml-3 btn btn-primary"
                                 onClick={
-                                    () => this.state.modalMode === 'create' ? this.doCreateOrder() : null
+                                    () => this.state.modalMode === 'create' ? this.doCreateOrder() : this.doRenameOrder()
                                 }
                         >
                             {
-                                this.state.modalMode === 'create' ? 'Create' : 'Edit'
+                                this.state.modalMode === 'create' ? 'Create' : 'Save'
                             }
                         </button>
                     </div>
@@ -282,7 +359,8 @@ class OrderModal extends React.Component {
 
                     <div>
                         <div style={
-                            this.state.modalMode === 'create' ? {display: 'none'} : {}}
+                            this.state.modalMode === 'create' || this.state.orderStatus === 'closed'
+                                ? {display: 'none'} : {}}
                              className="container border border-primary p-2 rounded">
                             <div className="p-1 h5">Add Item</div>
                             <div>
@@ -290,7 +368,7 @@ class OrderModal extends React.Component {
 
                                     <div className="col-7">
                                         <Autosuggest
-                                            ref = 'autosuggestItemName'
+                                            ref='autosuggestItemName'
                                             suggestions={suggestions}
                                             onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
                                             onSuggestionsClearRequested={this.onSuggestionsClearRequested}
@@ -337,72 +415,93 @@ class OrderModal extends React.Component {
                         </div>
 
                         {/* order details start here*/}
-                        <div className="container border border-primary p-2 mt-1 rounded"
+{/** Start Conditional Here */}
+                        {this.state.orderItems.length === 0 && this.state.modalMode !== 'create'?
+                            <div className="container border border-primary p-2 mt-1 rounded">
+                                No Items Added Yet...
+                            </div>
+                            :
 
-                             style={
-                                 this.state.modalMode === 'create' || this.state.orderItems.length === 0
-                                     ? {display: 'none'} : {}}
-                        >
-                            <div className="p-1 h5">Order Items</div>
-                            <div>
 
-                                {/* table header */}
-                                <div className="pl-3 pr-3 pt-1 pb-1 m-1 border rounded bg-order-item-header">
-                                    <div className="row text-center vcenter  enter small">
-                                        <span className="col-2"> Item </span>
-                                        <span className="col-1"> Unit Price </span>
-                                        <span className="col-3">Quantity</span>
-                                        <span className="col-3 h5"> Total </span>
-                                        <span className="col-3"> Actions</span>
+                            <div className="container border border-primary p-2 mt-1 rounded"
+
+                                 style={
+                                     this.state.modalMode === 'create' || this.state.orderItems.length === 0
+                                         ? {display: 'none'} : {}}
+                            >
+                                <div className="p-1 h5">Order Items</div>
+                                <div>
+
+                                    {/* table header */}
+                                    <div className="pl-3 pr-3 pt-1 pb-1 m-1 border rounded bg-order-item-header">
+                                        <div className="row text-center vcenter  enter small">
+                                            <span className="col-2"> Item </span>
+                                            <span className="col-1"> Unit Price </span>
+                                            <span className="col-3">Quantity</span>
+                                            <span className="col-3 h5"> Total </span>
+                                            <span className="col-3"> Actions</span>
+                                        </div>
+
                                     </div>
 
-                                </div>
+                                    {/* items */}
 
-                                {/* items */}
-
-                                {
-                                    this.state.orderItems.map((orderItem) => (
-                                        <OrderItem
-                                            key={`${orderItem.itemId}${orderItem.orderId}`}
-                                            itemName={orderItem.item.itemName}
-                                            unitPrice={orderItem.item.unitPrice}
-                                            amountAvailable = {orderItem.item.amountAvailable}
-                                            quantity={orderItem.quantity}
-                                            orderId={orderItem.orderId}
-                                            itemId={orderItem.itemId}
-                                            onQuantityChanged={this.onQuantityChanged}
-                                            addNotification={this.addNotification}
-                                            onOrderItemDeleted={this.onOrderItemDeleted}
-                                        />
-                                    ))
-                                }
+                                    {
+                                        this.state.orderItems.map((orderItem) => (
+                                            <OrderItem
+                                                key={`${orderItem.itemId}${orderItem.orderId}`}
+                                                itemName={orderItem.item.itemName}
+                                                unitPrice={orderItem.item.unitPrice}
+                                                amountAvailable={orderItem.item.amountAvailable}
+                                                quantity={orderItem.quantity}
+                                                orderId={orderItem.orderId}
+                                                itemId={orderItem.itemId}
+                                                onQuantityChanged={this.onQuantityChanged}
+                                                onOrderItemDeleted={this.onOrderItemDeleted}
+                                            />
+                                        ))
+                                    }
 
 
-                                {/* summation*/}
-                                <div className="pl-3 pr-3 pt-1 pb-1 m-1 border rounded bg-order-item-header">
-                                    <div className="row text-center vcenter ">
-                                        <span className="col-3 h4"> Total </span>
-                                        <span className="col-2 h4"> {sum.toFixed(2)}$ </span>
+                                    {/* summation*/}
+                                    <div className="pl-3 pr-3 pt-1 pb-1 m-1 border rounded bg-order-item-header">
+                                        <div className="row text-center vcenter ">
+                                            <span className="col-3 h4"> Total </span>
+                                            <span className="col-2 h4"> {sum.toFixed(2)}$ </span>
+                                        </div>
+
                                     </div>
-
                                 </div>
                             </div>
-                        </div>
 
-
+                        }
+{/** end conditional here */}
                     </div>
 
 
                 </Modal.Body>
-                <Modal.Footer>
-                    <span style={this.state.modalMode === 'create' ? {display: 'none'} : {}}>
-                        <span style={{float: 'left', paddingLeft: '5px'}}>
-                            Order Status : <span className="text-success h3">Open</span>
+                <Modal.Footer style={this.state.modalMode === 'create' ? {display: 'none'} : {}}>
+                    <span>
+                        <span className="mr-5">
+                            Order Status :
+                            <span
+                                className={`${this.state.orderStatus === 'open' ? 'text-success' : 'text-danger'}
+                                h3 pr-5 pl-5`}>{this.state.orderStatus}
+                            </span>
                         </span>
                     </span>
+
+                    {this.state.orderStatus === 'open' &&
                     <Button
-                        style={this.state.modalMode === 'create' ? {display: 'none'} : {}}
-                        variant="danger" onClick={this.props.onHide}>Close Order</Button>
+                        variant="danger" onClick={this.doCloseOrder}>
+                        {'Close Order'}
+                    </Button>
+                    }
+                    <span className="ml-3"> </span>
+                    <Button
+                        variant="dark" onClick={this.props.onHide}>
+                        {'<-- Go Back'}
+                    </Button>
                 </Modal.Footer>
             </Modal>
         );

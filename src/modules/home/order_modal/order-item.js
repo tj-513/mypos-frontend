@@ -1,5 +1,5 @@
-import {confirmAlert} from 'react-confirm-alert';
 import React from 'react'
+import {NotificationManager} from 'react-notifications';
 import './order-item.css'
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
@@ -57,15 +57,16 @@ class OrderItem extends React.Component {
         }).then(response => response.json()
             .then(data => {
                 if (response.ok) {
-                    this.props.addNotification(true, `Deleted Order Item  {${data.item.itemName}}`);
+                    NotificationManager.success( `Deleted Order Item  {${data.item.itemName}}`, 'Success',3000);
                     this.props.onOrderItemDeleted(data.itemId);
                 } else {
-                    this.props.addNotification(false, data.message);
+                    NotificationManager.error( data.message,'Error', 3000);
                 }
             }))
             .catch((e) => {
                 console.log('order-item', e);
-                this.props.addNotification(false, "Order Item Update Failed")
+                NotificationManager.error( "Order Item Delete Failed",'Error', 3000);
+
             })
     }
 
@@ -87,15 +88,15 @@ class OrderItem extends React.Component {
         }).then(response => response.json()
             .then(data => {
                 if (response.ok) {
-                    this.props.addNotification(true, `Updated Order Item  {${data.item.itemName}} `);
+                    NotificationManager.success( `Updated Order Item  {${data.item.itemName}} `,'Success', 3000);
                     this.setState({quantityChanged: false});
                     this.props.onQuantityChanged(data.itemId, data.quantity);
                 } else {
-                    this.props.addNotification(false, data.message);
+                    NotificationManager.error( data.message,'Error', 3000);
                 }
             }))
             .catch(() => {
-                this.props.addNotification(false, "Order Item Update Failed")
+                NotificationManager.error("Order Item Update Failed", 'Error', 3000);
             })
 
     }
@@ -106,6 +107,8 @@ class OrderItem extends React.Component {
             <div>
                 {
                     this.state.deleteConfirmation ?
+
+// on delete confirmation ++++++++++++++++++++++++++++++
                         <div className="pl-3 pr-3 pt-1 pb-1 m-1 border rounded" style={{backgroundColor: '#ffc2b3'}}>
                             <div className="row text-center vcenter ">
                                 <span className="col-2 border-right"> {this.props.itemName} </span>
@@ -122,11 +125,13 @@ class OrderItem extends React.Component {
                         </div>
 
 
-                        : <div className="pl-3 pr-3 pt-1 pb-1 m-1 border rounded bg-order-item">
+                        :
+// on item display +++++++++++++++++++++++++++++++++++
+                        <div className="pl-3 pr-3 pt-1 pb-1 m-1 border rounded bg-order-item">
 
                             <div className="row text-center vcenter ">
                                 <span className="col-2"> {this.props.itemName} </span>
-                                <span className="col-2"> {this.props.unitPrice.toFixed(2)}$ </span>
+                                <span className={`col-2 ${this.props.orderClosed}`}> {this.props.unitPrice.toFixed(2)}$ </span>
 
 
                                 <span className="col-2">
