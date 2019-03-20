@@ -1,6 +1,7 @@
-import React, {Component} from "react"
-import 'bootstrap/dist/css/bootstrap.min.css'
-import "./login.css"
+import React, {Component} from "react";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import "./login.css";
+import {Redirect} from "react-router";
 
 
 class Login extends Component {
@@ -8,6 +9,7 @@ class Login extends Component {
     constructor() {
         super();
         this.state = {
+            loggedIn: false,
             loginFailed: false,
             loginMessage: '',
             usernameEmpty: '',
@@ -33,8 +35,10 @@ class Login extends Component {
 
 
     redirectToHome() {
-        let path = `home`;
-        this.props.history.push(path);
+        this.setState({loggedIn: true})
+        this.props.history.push('home');
+        window.location.reload();
+        setTimeout(()=>window.location.reload(),200);
     }
 
     validate() {
@@ -48,7 +52,7 @@ class Login extends Component {
             passwordEmpty = "Please Provide a Password"
         }
 
-        this.setState({usernameEmpty: usernameEmpty,passwordEmpty: passwordEmpty})
+        this.setState({usernameEmpty: usernameEmpty, passwordEmpty: passwordEmpty})
 
         console.log(this.state)
 
@@ -73,13 +77,13 @@ class Login extends Component {
         }).then(response => response.json()
             .then(data => {
                 if (response.ok) {
-                    localStorage.setItem("user" , JSON.stringify(data)  )
+                    localStorage.setItem("user", JSON.stringify(data))
                     this.redirectToHome()
                 } else {
                     this.setState({loginMessage: data.message})
                 }
             }))
-            .catch( response => {
+            .catch(response => {
                 this.setState({loginMessage: "Login Failed.. Please try again"})
             })
 
@@ -87,48 +91,61 @@ class Login extends Component {
 
     render() {
         return (
-            <div className="myposbox top-large-space">
-                <p className="h3 text-center">
-                    Welcome to MyPoS
-                </p>
-                <p className=".small h6 text-center">
-
-                    Please Login to Continue
-                </p>
-                <div>
-
+            <React.Fragment>
+            {
+                this.state.loggedIn ?
                     <div>
-                        <div>Username</div>
-                        <input
-                            className="form-control"
-                            ref="username"
-                            type="text">
-                        </input>
-                        <div>{this.state.usernameEmpty} </div>
-
-                        <div>Password</div>
-                        <input
-                            className="form-control"
-                            ref="password"
-                            type="password">
-                        </input>
-                        <div>{this.state.passwordEmpty} </div>
-
+                        <Redirect to={'/'}/>
                     </div>
-                    <div className="text-center top-space">
+                    :
+                    <div className="myposbox top-large-space">
+                        <p className="h3 text-center">
+                            Welcome to MyPoS
+                        </p>
+                        <p className=".small h6 text-center">
+
+                            Please Login to Continue
+                        </p>
                         <div>
-                            {this.state.loginMessage}
+
+                            <div>
+                                <div>Username</div>
+                                <input
+                                    className="form-control"
+                                    ref="username"
+                                    type="text">
+                                </input>
+                                <div>{this.state.usernameEmpty} </div>
+
+                                <div>Password</div>
+                                <input
+                                    className="form-control"
+                                    ref="password"
+                                    type="password">
+                                </input>
+                                <div>{this.state.passwordEmpty} </div>
+
+                            </div>
+                            <div className="text-center top-space">
+                                <div>
+                                    {this.state.loginMessage}
+                                </div>
+
+                                <button type="button" className="btn btn-info col-5 btn-space"
+                                        onClick={this.redirectToSignIn}>Sign In
+                                </button>
+                                <button type="button" onClick={this.doLogin}
+                                        className="btn btn-primary col-5 btn-space">Login
+                                </button>
+                            </div>
+
                         </div>
 
-                        <button type="button" className="btn btn-info col-5 btn-space"
-                            onClick={this.redirectToSignIn}>Sign In
-                        </button>
-                        <button type="button" onClick={this.doLogin} className="btn btn-primary col-5 btn-space">Login</button>
                     </div>
 
-                </div>
+            }
+            </React.Fragment>
 
-            </div>
         );
     }
 }

@@ -1,6 +1,7 @@
 import React from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './OrdreBar.css'
+import {NotificationManager} from "react-notifications";
 
 class OrderBar extends React.Component {
     constructor(props) {
@@ -30,6 +31,8 @@ class OrderBar extends React.Component {
                 if (response.ok) {
                     console.log('Order deleted:', data);
                     this.props.onOrderDeleted(data.id);
+                    NotificationManager.success(`Order {${data.orderName}} Successfully Deleted`, 'Success');
+
                 } else {
                     console.log('Order order deletion failed', data)
                 }
