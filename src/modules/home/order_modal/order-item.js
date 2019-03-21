@@ -82,7 +82,7 @@ class OrderItem extends React.Component {
                 "userId": user.id
             };
 
-        fetch(`${API_URL}api/orders/changeItemQuantity`, {
+        fetch(`${API_URL}/api/orders/changeItemQuantity`, {
             method: 'PUT',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify(newOrderItem)

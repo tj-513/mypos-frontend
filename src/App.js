@@ -22,6 +22,7 @@ class App extends Component {
             return true;
         }
 
+
     }
 
     render() {
@@ -32,9 +33,9 @@ class App extends Component {
                 <div>
                     <PosNavbar/>
                     <Switch>
-                        <Route path="/" component={this.checkLoggedIn()? Home : Login} exact/>
+                        <Route path="/" render={()=>this.checkLoggedIn()? <Home/> : <Login/>} exact/>
                         <Route path="/register" component={Register}/>
-                        <Route path="/home" component={this.checkLoggedIn() ? Home : Login}/>
+                        <Route path="/home" component={this.checkLoggedIn()? Home: Login}/>
                         <Route component={Login}/>
                     </Switch>
 

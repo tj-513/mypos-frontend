@@ -5,6 +5,9 @@ import Button from 'react-bootstrap/Button';
 import './home.css';
 import OrderBar from "./order_bar/OrderBar";
 import OrderModal from "./order_modal/order_modal";
+import {withRouter} from "react-router-dom";
+
+
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -61,8 +64,8 @@ class Home extends React.Component {
             modalData: {
                 modalShow: false
             }
-        })
-
+        });
+        this.getOrdersForUser();
     }
 
     showCreateOrder() {
@@ -91,12 +94,15 @@ class Home extends React.Component {
     }
 
     onOrderUpdated(order) {
+        // insert the modified item to the top of the list
+
         this.setState(prevState => {
-            let existingItem = prevState.orders.find(item => item.id = order.id);
-            existingItem.orderName = order.orderName;
-            existingItem.orderStatus = order.orderStatus;
+            let existingItems = prevState.orders.filter(item => item.id !== order.id);
+            existingItems.push(order);
+            prevState.orders = existingItems;
             return prevState;
         });
+
     }
 
     onOrderDeleted(orderId) {
@@ -129,6 +135,7 @@ class Home extends React.Component {
                         onHide={this.modalClose}
                         onNewOrderAdded={this.onNewOrderAdded}
                         onOrderUpdated={this.onOrderUpdated}
+
                     />
 
                     }
@@ -153,7 +160,7 @@ class Home extends React.Component {
                             <div className="row order-bar-container">
                                 <span className="col-3">Name</span>
                                 <span className="col-2">Status</span>
-                                <span className="col-4">Date Created</span>
+                                <span className="col-4">Date Modified</span>
                                 <span className="col-3">Actions</span>
                             </div>
                         }
@@ -165,7 +172,7 @@ class Home extends React.Component {
                                         key={order.id}
                                         orderName={order.orderName}
                                         dateCreated={
-                                            new Date(Date.parse(order.dateCreated)).toLocaleString()}
+                                            new Date(Date.parse(order.dateModified)).toLocaleString()}
                                         orderStatus={order.orderStatus}
                                         orderId={order.id}
                                         onDetailsClick={this.onOrderDetailsClicked}
@@ -220,7 +227,7 @@ class Home extends React.Component {
                                                     key={order.id}
                                                     orderName={order.orderName}
                                                     dateCreated={
-                                                        new Date(Date.parse(order.dateCreated)).toLocaleString()}
+                                                        new Date(Date.parse(order.dateModified)).toLocaleString()}
                                                     orderStatus={order.orderStatus}
                                                     orderId={order.id}
                                                     onDetailsClick={this.onOrderDetailsClicked}
@@ -250,4 +257,4 @@ class Home extends React.Component {
 
 }
 
-export default Home;
+export default withRouter( Home);
