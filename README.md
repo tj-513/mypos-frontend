@@ -1,7 +1,8 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+Library used for notifications
 
-https://www.npmjs.com/package/react-notifications-component
+https://www.npmjs.com/package/react-notifications
 ## Available Scripts
 
 In the project directory, you can run:
