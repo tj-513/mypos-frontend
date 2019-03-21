@@ -131,11 +131,12 @@ class OrderItem extends React.Component {
 
                             <div className="row text-center vcenter ">
                                 <span className="col-2"> {this.props.itemName} </span>
-                                <span className={`col-2 ${this.props.orderClosed}`}> {this.props.unitPrice.toFixed(2)}$ </span>
+                                <span className={`col-2`}> {this.props.unitPrice.toFixed(2)}$ </span>
 
 
                                 <span className="col-2">
                                 <input type="number"
+                                       disabled={this.props.orderClosed}
                                        min={0}
                                        max={Math.max(this.props.amountAvailable, this.initialQuantity)}
                                        className="form-control text-center"
@@ -147,19 +148,25 @@ class OrderItem extends React.Component {
 
 
                                 <span className="col-3 h5">
-                                {(this.props.unitPrice * this.state.itemQuantity).toFixed(2)}$
-                            </span>
+                                    {(this.props.unitPrice * this.state.itemQuantity).toFixed(2)}$
+                                </span>
+
                                 <span className="col-3">
-                                 <button type="button"
-                                         className={`col-6 btn btn-primary btn-sm`}
-                                         disabled={!this.state.quantityChanged || (this.props.quantity === this.initialQuantity)}
-                                         onClick={this.doSaveQuantity}
-                                 >
+                                     <button type="button"
+                                             className={`col-6 btn btn-primary btn-sm`}
+                                             disabled={
+                                                 !this.state.quantityChanged ||
+                                                 (this.props.quantity === this.initialQuantity) ||
+                                                 this.props.orderClosed
+                                             }
+                                             onClick={this.doSaveQuantity}
+                                     >
                                     <MdSave/>
-                                 </button>
+                                    </button>
 
                                 <button type="button"
                                         className="col-6 btn btn-danger btn-sm"
+                                        disabled={this.props.orderClosed}
                                         onClick={() => this.setState({deleteConfirmation: true})}>
                                     <MdRemoveCircle/>
                                  </button>

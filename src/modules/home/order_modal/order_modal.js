@@ -345,15 +345,17 @@ class OrderModal extends React.Component {
                             ref="orderName"
                             placeholder='Name...'/>
 
-                        <button className="col-3 ml-3 btn btn-primary"
-                                onClick={
-                                    () => this.state.modalMode === 'create' ? this.doCreateOrder() : this.doRenameOrder()
+                        {this.state.orderStatus === 'open' &&
+                            <button className="col-3 ml-3 btn btn-primary"
+                                    onClick={
+                                        () => this.state.modalMode === 'create' ? this.doCreateOrder() : this.doRenameOrder()
+                                    }
+                            >
+                                {
+                                    this.state.modalMode === 'create' ? 'Create' : 'Save'
                                 }
-                        >
-                            {
-                                this.state.modalMode === 'create' ? 'Create' : 'Save'
-                            }
-                        </button>
+                            </button>
+                        }
                     </div>
 
 
@@ -456,6 +458,7 @@ class OrderModal extends React.Component {
                                                 quantity={orderItem.quantity}
                                                 orderId={orderItem.orderId}
                                                 itemId={orderItem.itemId}
+                                                orderClosed={this.state.orderStatus === 'closed'}
                                                 onQuantityChanged={this.onQuantityChanged}
                                                 onOrderItemDeleted={this.onOrderItemDeleted}
                                             />
@@ -481,22 +484,25 @@ class OrderModal extends React.Component {
 
                 </Modal.Body>
                 <Modal.Footer style={this.state.modalMode === 'create' ? {display: 'none'} : {}}>
-                    <span>
-                        <span className="mr-5">
-                            Order Status :
-                            <span
-                                className={`${this.state.orderStatus === 'open' ? 'text-success' : 'text-danger'}
-                                h3 pr-5 pl-5`}>{this.state.orderStatus}
-                            </span>
-                        </span>
-                    </span>
-
                     {this.state.orderStatus === 'open' &&
                     <Button
+                        style = {{marginLeft:'0px',marginRight:'auto'}}
                         variant="danger" onClick={this.doCloseOrder}>
                         {'Close Order'}
                     </Button>
                     }
+
+                    <span>
+                        <span className="mr-3">
+                            Order Status :
+                            <span
+                                className={`${this.state.orderStatus === 'open' ? 'text-success' : 'text-danger'}
+                                h3 pr-5 pl-2`}>{this.state.orderStatus}
+                            </span>
+                        </span>
+                    </span>
+
+
                     <span className="ml-3"> </span>
                     <Button
                         variant="dark" onClick={this.props.onHide}>
