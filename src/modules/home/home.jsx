@@ -162,7 +162,7 @@ class Home extends React.Component {
                                         key={order.id}
                                         orderName={order.orderName}
                                         dateCreated={
-                                            new Date(Date.parse(order.dateCreated)).toDateString()}
+                                            new Date(Date.parse(order.dateCreated)).toLocaleString()}
                                         orderStatus={order.orderStatus}
                                         orderId={order.id}
                                         onDetailsClick={this.onOrderDetailsClicked}
@@ -217,7 +217,7 @@ class Home extends React.Component {
                                                     key={order.id}
                                                     orderName={order.orderName}
                                                     dateCreated={
-                                                        new Date(Date.parse(order.dateCreated)).toDateString()}
+                                                        new Date(Date.parse(order.dateCreated)).toLocaleString()}
                                                     orderStatus={order.orderStatus}
                                                     orderId={order.id}
                                                     onDetailsClick={this.onOrderDetailsClicked}
