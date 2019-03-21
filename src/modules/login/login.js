@@ -2,8 +2,11 @@ import React, {Component} from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./login.css";
 import {Redirect} from "react-router";
+import {withRouter} from "react-router-dom";
+
 
 const API_URL = process.env.REACT_APP_API_URL;
+
 class Login extends Component {
 
     constructor() {
@@ -37,8 +40,7 @@ class Login extends Component {
     redirectToHome() {
         this.setState({loggedIn: true})
         this.props.history.push('home');
-        window.location.reload();
-        setTimeout(()=>window.location.reload(),200);
+        window.location.reload(true);
     }
 
     validate() {
@@ -91,63 +93,55 @@ class Login extends Component {
 
     render() {
         return (
-            <React.Fragment>
-            {
-                this.state.loggedIn ?
+
+            <div className="myposbox top-large-space">
+                <p className="h3 text-center">
+                    Welcome to MyPoS
+                </p>
+                <p className=".small h6 text-center">
+
+                    Please Login to Continue
+                </p>
+                <div>
+
                     <div>
-                        <Redirect to={'/'}/>
+                        <div>Username</div>
+                        <input
+                            className="form-control"
+                            ref="username"
+                            type="text">
+                        </input>
+                        <div>{this.state.usernameEmpty} </div>
+
+                        <div>Password</div>
+                        <input
+                            className="form-control"
+                            ref="password"
+                            type="password">
+                        </input>
+                        <div>{this.state.passwordEmpty} </div>
+
                     </div>
-                    :
-                    <div className="myposbox top-large-space">
-                        <p className="h3 text-center">
-                            Welcome to MyPoS
-                        </p>
-                        <p className=".small h6 text-center">
-
-                            Please Login to Continue
-                        </p>
+                    <div className="text-center top-space">
                         <div>
-
-                            <div>
-                                <div>Username</div>
-                                <input
-                                    className="form-control"
-                                    ref="username"
-                                    type="text">
-                                </input>
-                                <div>{this.state.usernameEmpty} </div>
-
-                                <div>Password</div>
-                                <input
-                                    className="form-control"
-                                    ref="password"
-                                    type="password">
-                                </input>
-                                <div>{this.state.passwordEmpty} </div>
-
-                            </div>
-                            <div className="text-center top-space">
-                                <div>
-                                    {this.state.loginMessage}
-                                </div>
-
-                                <button type="button" className="btn btn-info col-5 btn-space"
-                                        onClick={this.redirectToSignIn}>Sign In
-                                </button>
-                                <button type="button" onClick={this.doLogin}
-                                        className="btn btn-primary col-5 btn-space">Login
-                                </button>
-                            </div>
-
+                            {this.state.loginMessage}
                         </div>
 
+                        <button type="button" className="btn btn-info col-5 btn-space"
+                                onClick={this.redirectToSignIn}>Sign In
+                        </button>
+                        <button type="button" onClick={this.doLogin}
+                                className="btn btn-primary col-5 btn-space">Login
+                        </button>
                     </div>
 
-            }
-            </React.Fragment>
+                </div>
+
+            </div>
+
 
         );
     }
 }
 
-export default Login;
+export default withRouter(Login);

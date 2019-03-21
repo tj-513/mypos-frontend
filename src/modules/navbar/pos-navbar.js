@@ -21,7 +21,8 @@ class PosNavbar extends React.Component {
                                 <button className='btn btn-light'
                                         onClick={(() => {
                                             localStorage.clear();
-                                            window.location.reload();
+                                            window.location.reload(true
+                                            );
                                         }).bind(this)}
                                 > Sign Out
                                 </button>
