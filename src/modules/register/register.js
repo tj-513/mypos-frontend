@@ -2,6 +2,7 @@ import React, {Component} from "react"
 import 'bootstrap/dist/css/bootstrap.min.css'
 import "./register.css"
 
+const API_URL = process.env.REACT_APP_API_URL;
 
 class Register extends Component {
 
@@ -64,7 +65,7 @@ class Register extends Component {
         if(!this.validate()) return;
 
 
-        fetch('http://localhost:8090/api/users', {
+        fetch(`${API_URL}/api/users`, {
             method: 'POST',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify(newUser)

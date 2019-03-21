@@ -6,6 +6,8 @@ import './home.css';
 import OrderBar from "./order_bar/OrderBar";
 import OrderModal from "./order_modal/order_modal";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 class Home extends React.Component {
     constructor(props) {
         super(props);
@@ -38,7 +40,7 @@ class Home extends React.Component {
         user = JSON.parse(user);
         console.log(user);
 
-        fetch(`http://localhost:8090/api/users/orderlist/${user.id}`, {
+        fetch(`${API_URL}/api/users/orderlist/${user.id}`, {
             method: 'GET',
         }).then(response => response.json()
             .then(data => {
@@ -109,6 +111,7 @@ class Home extends React.Component {
 
 
     render() {
+        console.log('api',process.env);
         const {open} = this.state;
         const openOrders = this.state.orders.filter(order => order.orderStatus === 'open');
         const closedOrders = this.state.orders.filter(order => order.orderStatus === 'closed');

@@ -7,6 +7,7 @@ import React from 'react'
 import './order-modal.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+const API_URL = process.env.REACT_APP_API_URL;
 class OrderModal extends React.Component {
 
 
@@ -82,7 +83,7 @@ class OrderModal extends React.Component {
     doGetOrderDetails() {
         let orderId = this.props.orderId;
 
-        fetch(`http://localhost:8090/api/orders/${orderId}`, {
+        fetch(`${API_URL}/api/orders/${orderId}`, {
             method: 'GET',
         }).then(response => response.json()
             .then(data => {
@@ -106,7 +107,7 @@ class OrderModal extends React.Component {
     doLoadOrderItems() {
         let orderId = this.props.orderId;
 
-        fetch(`http://localhost:8090//api/orders/items/${orderId}`, {
+        fetch(`${API_URL}/api/orders/items/${orderId}`, {
             method: 'GET',
         }).then(response => response.json()
             .then(data => {
@@ -128,7 +129,7 @@ class OrderModal extends React.Component {
             "userId": user.id
         };
 
-        fetch('http://localhost:8090/api/orders', {
+        fetch(`${API_URL}/api/orders`, {
             method: 'POST',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify(newOrder)
@@ -161,7 +162,7 @@ class OrderModal extends React.Component {
                 "userId": user.id
             };
 
-        fetch('http://localhost:8090/api/orders/addItem', {
+        fetch(`${API_URL}/api/orders/addItem`, {
             method: 'PUT',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify(newOrderItem)
@@ -200,7 +201,7 @@ class OrderModal extends React.Component {
 
             };
 
-        fetch('http://localhost:8090/api/orders', {
+        fetch(`${API_URL}/api/orders`, {
             method: 'PUT',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify(newOrder)
@@ -233,7 +234,7 @@ class OrderModal extends React.Component {
 
             };
 
-        fetch('http://localhost:8090/api/orders', {
+        fetch(`${API_URL}/api/orders`, {
             method: 'PUT',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify(newOrder)
@@ -270,7 +271,7 @@ class OrderModal extends React.Component {
     );
 
     onSuggestionsFetchRequested(value) {
-        fetch(`http://localhost:8090/api/items/search/${value.value}`)
+        fetch(`${API_URL}/api/items/search/${value.value}`)
             .then(response => response.json())
             .then(data => {
                 const itemIds = this.state.orderItems.map(orderItem => orderItem.itemId);
@@ -345,7 +346,7 @@ class OrderModal extends React.Component {
                             ref="orderName"
                             placeholder='Name...'/>
 
-                        {this.state.orderStatus === 'open' &&
+                        {(this.state.modalMode === 'create' || this.state.orderStatus === 'open') &&
                             <button className="col-3 ml-3 btn btn-primary"
                                     onClick={
                                         () => this.state.modalMode === 'create' ? this.doCreateOrder() : this.doRenameOrder()

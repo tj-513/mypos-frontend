@@ -3,6 +3,8 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import './OrdreBar.css'
 import {NotificationManager} from "react-notifications";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 class OrderBar extends React.Component {
     constructor(props) {
         super(props);
@@ -24,7 +26,7 @@ class OrderBar extends React.Component {
     doDeleteOrder() {
         let orderId = this.props.orderId;
 
-        fetch(`http://localhost:8090/api/orders/${orderId}`, {
+        fetch(`${API_URL}/api/orders/${orderId}`, {
             method: 'DELETE',
         }).then(response => response.json()
             .then(data => {

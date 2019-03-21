@@ -5,6 +5,7 @@ import 'react-confirm-alert/src/react-confirm-alert.css';
 
 import {MdSave, MdRemoveCircle} from "react-icons/md";
 
+const API_URL = process.env.REACT_APP_API_URL;
 class OrderItem extends React.Component {
 
     initialQuantity = 0;
@@ -50,7 +51,7 @@ class OrderItem extends React.Component {
                 "userId": user.id
             };
 
-        fetch('http://localhost:8090/api/orders/deleteOrderItem', {
+        fetch(`${API_URL}/api/orders/deleteOrderItem`, {
             method: 'DELETE',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify(newOrderItem)
@@ -81,7 +82,7 @@ class OrderItem extends React.Component {
                 "userId": user.id
             };
 
-        fetch('http://localhost:8090/api/orders/changeItemQuantity', {
+        fetch(`${API_URL}api/orders/changeItemQuantity`, {
             method: 'PUT',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify(newOrderItem)

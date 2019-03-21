@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import "./login.css";
 import {Redirect} from "react-router";
 
-
+const API_URL = process.env.REACT_APP_API_URL;
 class Login extends Component {
 
     constructor() {
@@ -70,7 +70,7 @@ class Login extends Component {
         if (!this.validate()) return;
 
 
-        fetch('http://localhost:8090/api/users/login', {
+        fetch(`${API_URL}/api/users/login`, {
             method: 'POST',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify(newUser)
