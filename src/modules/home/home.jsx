@@ -27,6 +27,7 @@ class Home extends React.Component {
         this.state = {
             open: false,
             orders: [],
+            startMessage:"",
             modalData: {
                 modalShow: false,
                 modalMode: 'create',
@@ -38,7 +39,7 @@ class Home extends React.Component {
     }
 
     getOrdersForUser() {
-
+        this.setState({startMessage: "Please wait while the data is being loaded..."});
         let user = localStorage.getItem("user");
         user = JSON.parse(user);
         console.log(user);
@@ -49,13 +50,16 @@ class Home extends React.Component {
             .then(data => {
                 if (response.ok) {
                     console.log('Orders retrieval Success:', data);
+                    this.setState({startMessage: "No orders found"});
                     this.setState({orders: data})
                 } else {
                     console.log('Order retrieval failed', data)
+                    this.setState({startMessage: "Retrieval failed..."});
                 }
             }))
             .catch(e => {
                 console.log('error occured', e)
+                this.setState({startMessage: "Retrieval Failed..."});
             })
     }
 
@@ -153,7 +157,7 @@ class Home extends React.Component {
 
                         {openOrders.length === 0 ?
                             <div className="row order-bar-container text-center">
-                                No Open Orders Found ... Created open orders will be displayed here.
+                               {this.state.startMessage}
 
                             </div>
                             :
@@ -207,7 +211,7 @@ class Home extends React.Component {
 
                                     {closedOrders.length === 0 ?
                                         <div className="row order-bar-container text-center">
-                                            No Closed Orders Found ... Closed orders will be displayed here.
+                                           {this.state.startMessage}
                                         </div>
                                         :
                                         <div className="row order-bar-container">
