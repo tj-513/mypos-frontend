@@ -1,9 +1,9 @@
-##MyPoS - Point of Sales System
+## MyPoS - Point of Sales System
 
 This was done as a pet project for learning ReactJs.
 
 
-###Libraries Used
+### Libraries Used
 
 
 Library used for notifications
