@@ -153,7 +153,7 @@ class Home extends React.Component {
 
                         {openOrders.length === 0 ?
                             <div className="row order-bar-container text-center">
-                                No Open Orders Found ...
+                                No Open Orders Found ... Created open orders will be displayed here.
 
                             </div>
                             :
@@ -195,7 +195,7 @@ class Home extends React.Component {
                                 aria-expanded={open}
                                 className="btn btn-sm btn-info"
                             >
-                                + Show Closed Orders
+                                + Show/Hide Closed Orders
                             </Button>
 
 
@@ -203,17 +203,17 @@ class Home extends React.Component {
 
                         <Collapse in={this.state.open}>
                             <div id="example-collapse-text">
-                                <div>
+                                <div style={{overflowY: 'scroll', maxHeight:'400px'}}>
 
                                     {closedOrders.length === 0 ?
                                         <div className="row order-bar-container text-center">
-                                            No Closed Orders Found ...
+                                            No Closed Orders Found ... Closed orders will be displayed here.
                                         </div>
                                         :
                                         <div className="row order-bar-container">
                                             <span className="col-3">Name</span>
                                             <span className="col-3">Status</span>
-                                            <span className="col-2">Date Created</span>
+                                            <span className="col-2">Date Modified</span>
                                             <span className="col-4">Actions</span>
                                         </div>
                                     }

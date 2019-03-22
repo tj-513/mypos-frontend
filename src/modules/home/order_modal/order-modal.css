@@ -56,3 +56,10 @@
 .react-autosuggest__suggestion--highlighted {
     background-color: #ddd;
 }
+
+.delete-confirmation{
+    font-size: 1.5vw;
+    background-color: #ffc2b3;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}

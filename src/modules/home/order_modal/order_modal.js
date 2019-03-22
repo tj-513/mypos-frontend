@@ -21,22 +21,23 @@ class OrderModal extends React.Component {
             newItem: {},
             newItemQuantity: 0,
             newItemSelected: false,
+            orderCloseConfirmation: false,
             orderId: 0,
             orderItems: [],
             orderName: '',
             orderStatus: 'open'
         };
 
+        this.doAddOrderItem = this.doAddOrderItem.bind(this);
+        this.doCloseOrder = this.doCloseOrder.bind(this);
+        this.doGetOrderDetails = this.doGetOrderDetails.bind(this);
         this.doLoadOrderItems = this.doLoadOrderItems.bind(this);
+        this.doRenameOrder = this.doRenameOrder.bind(this);
+        this.doRenameOrder = this.doRenameOrder.bind(this);
+        this.onOrderItemDeleted = this.onOrderItemDeleted.bind(this);
+        this.onQuantityChanged = this.onQuantityChanged.bind(this);
         this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
         this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
-        this.doAddOrderItem = this.doAddOrderItem.bind(this);
-        this.onQuantityChanged = this.onQuantityChanged.bind(this);
-        this.onOrderItemDeleted = this.onOrderItemDeleted.bind(this);
-        this.doGetOrderDetails = this.doGetOrderDetails.bind(this);
-        this.doCloseOrder = this.doCloseOrder.bind(this);
-        this.doRenameOrder = this.doRenameOrder.bind(this);
-        this.doRenameOrder = this.doRenameOrder.bind(this);
 
     }
 
@@ -389,6 +390,9 @@ class OrderModal extends React.Component {
                                            disabled={!this.state.newItemSelected}
                                            value={this.state.newItemQuantity}
                                            onChange={(event) => {
+                                               event.target.value = event.target.value < 1 ? 1 : event.target.value;
+                                               event.target.value = event.target.value > this.state.newItem.amountAvailable ?
+                                                   this.state.newItem.amountAvailable : event.target.value;
                                                this.setState({newItemQuantity: event.target.value})
                                            }}
                                            min={0}
@@ -420,9 +424,12 @@ class OrderModal extends React.Component {
                         {/* order details start here*/}
 {/** Start Conditional Here */}
                         {this.state.orderItems.length === 0 && this.state.modalMode !== 'create'?
+
+
                             <div className="container border border-primary p-2 mt-1 rounded">
                                 No Items Added Yet...
                             </div>
+
                             :
 
 
@@ -439,8 +446,8 @@ class OrderModal extends React.Component {
                                     <div className="pl-3 pr-3 pt-1 pb-1 m-1 border rounded bg-order-item-header">
                                         <div className="row text-center vcenter  enter small">
                                             <span className="col-2"> Item </span>
-                                            <span className="col-1"> Unit Price </span>
-                                            <span className="col-3">Quantity</span>
+                                            <span className="col-2"> Unit Price </span>
+                                            <span className="col-2">Quantity</span>
                                             <span className="col-3 h5"> Total </span>
                                             <span className="col-3"> Actions</span>
                                         </div>
@@ -486,15 +493,40 @@ class OrderModal extends React.Component {
                 </Modal.Body>
                 <Modal.Footer style={this.state.modalMode === 'create' ? {display: 'none'} : {}}>
                     {this.state.orderStatus === 'open' &&
-                    <Button
-                        style = {{marginLeft:'0px',marginRight:'auto'}}
-                        variant="danger" onClick={this.doCloseOrder}>
-                        {'Close Order'}
-                    </Button>
+                    <span style={{marginLeft:0, marginRight:'auto'}}>
+                    {
+                        this.state.orderCloseConfirmation?
+                            <span className={"row delete-confirmation"} >
+                                <span className="col-5 h5 text-center vcenter">Are you sure?</span>
+
+                                <span
+                                    className="col-3 btn btn-primary mr-1"
+                                    onClick={()=>this.setState({orderCloseConfirmation:false})}>
+                                    Keep Open
+                                </span>
+                                <span
+                                    className="col-3 btn btn-danger mr-1"
+                                    onClick={()=>this.doCloseOrder()}>
+                                    Close Order
+                                </span>
+
+                            </span>
+                            :
+                            <Button
+                                style = {{marginLeft:'0px',marginRight:'auto'}}
+                                variant="danger"
+                                onClick={()=>this.setState({orderCloseConfirmation:true})}>
+                                {'Close Order'}
+                            </Button>
+
+                    }
+                    </span>
+
+
                     }
 
                     <span>
-                        <span className="mr-3">
+                        <span className="mr-2 ml-1">
                             Order Status :
                             <span
                                 className={`${this.state.orderStatus === 'open' ? 'text-success' : 'text-danger'}
@@ -507,7 +539,7 @@ class OrderModal extends React.Component {
                     <span className="ml-3"> </span>
                     <Button
                         variant="dark" onClick={this.props.onHide}>
-                        {'<-- Go Back'}
+                        {'<-- Back to Orders List'}
                     </Button>
                 </Modal.Footer>
             </Modal>

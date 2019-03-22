@@ -80,9 +80,16 @@ class OrderBar extends React.Component {
                         <span className="vcenter col-3">
                     <button className="btn btn-info btn-space"
                             onClick={this.handleDetailsClick}>Details</button>
-                    <button className="btn btn-danger btn-space"
-                            onClick={() => this.setState({deleteConfirmation: true})}
-                    >Delete</button>
+
+                            {this.props.orderStatus === 'open' ?
+
+
+                                <button className="btn btn-danger btn-space"
+                                        onClick={() => this.setState({deleteConfirmation: true})}
+                                >Delete</button>
+                                :
+                                null
+                            }
                     </span>
                     </div>
                 }

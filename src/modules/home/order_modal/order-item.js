@@ -30,6 +30,13 @@ class OrderItem extends React.Component {
     }
 
     onQuantityChange(event) {
+
+        let maxAvailable = Math.max(this.props.amountAvailable, this.initialQuantity)
+
+        event.target.value = event.target.value < 1 ? 1 : event.target.value;
+        event.target.value = event.target.value > maxAvailable ? maxAvailable : event.target.value;
+
+
         this.setState(
             {
                 itemQuantity: event.target.value,

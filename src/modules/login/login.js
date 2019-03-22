@@ -40,7 +40,7 @@ class Login extends Component {
     redirectToHome() {
         this.setState({loggedIn: true})
         this.props.history.push('/');
-        window.location.reload(true);
+        // window.location.reload(true);
     }
 
     validate() {
