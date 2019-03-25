@@ -109,7 +109,12 @@ class OrderItem extends React.Component {
             .then(data => {
                 if (response.ok) {
                     NotificationManager.success( `Updated Order Item  {${data.item.itemName}} `,'Success', 3000);
-                    this.setState({quantityChanged: false, isSaveOrderItemButtonDisabled: false});
+                    this.setState(
+                        {
+                            quantityChanged: false,
+                            isSaveOrderItemButtonDisabled: false,
+                        });
+                    this.initialQuantity = data.quantity;
                     this.props.onQuantityChanged(data.itemId, data.quantity);
                 } else {
                     NotificationManager.error( data.message,'Error', 3000);
@@ -181,7 +186,7 @@ class OrderItem extends React.Component {
                                              className={`col-6 btn btn-primary btn-sm`}
                                              disabled={
                                                  !this.state.quantityChanged ||
-                                                 (this.props.quantity === this.initialQuantity) ||
+                                                 (Number(this.state.itemQuantity) === this.initialQuantity) ||
                                                  this.props.orderClosed ||
                                                  this.state.isSaveOrderItemButtonDisabled
                                              }
