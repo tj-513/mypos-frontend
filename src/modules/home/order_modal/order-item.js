@@ -16,12 +16,16 @@ class OrderItem extends React.Component {
         this.state = {
             deleteConfirmation: false,
             quantityChanged: false,
-            itemQuantity: 0
+            itemQuantity: 0,
+
+            isConfirmOrderItemDeleteButtonDisabled: false,
+            isSaveOrderItemButtonDisabled: false
         };
         this.initialQuantity = props.quantity;
-        this.onQuantityChange = this.onQuantityChange.bind(this)
-        this.doSaveQuantity = this.doSaveQuantity.bind(this)
-        this.doDeleteOrderItem = this.doDeleteOrderItem.bind(this)
+        this.onQuantityChange = this.onQuantityChange.bind(this);
+
+        this.doSaveQuantity = this.doSaveQuantity.bind(this);
+        this.doDeleteOrderItem = this.doDeleteOrderItem.bind(this);
 
     }
 
@@ -58,6 +62,8 @@ class OrderItem extends React.Component {
                 "userId": user.id
             };
 
+        this.setState({isConfirmOrderItemDeleteButtonDisabled: true});
+
         fetch(`${API_URL}/api/orders/deleteOrderItem`, {
             method: 'DELETE',
             headers: {'content-type': 'application/json'},
@@ -69,11 +75,15 @@ class OrderItem extends React.Component {
                     this.props.onOrderItemDeleted(data.itemId);
                 } else {
                     NotificationManager.error( data.message,'Error', 3000);
+                    this.setState({isConfirmOrderItemDeleteButtonDisabled: false});
+
                 }
             }))
             .catch((e) => {
                 console.log('order-item', e);
                 NotificationManager.error( "Order Item Delete Failed",'Error', 3000);
+                this.setState({isConfirmOrderItemDeleteButtonDisabled: false});
+
 
             })
     }
@@ -89,6 +99,8 @@ class OrderItem extends React.Component {
                 "userId": user.id
             };
 
+        this.setState({isSaveOrderItemButtonDisabled:true});
+
         fetch(`${API_URL}/api/orders/changeItemQuantity`, {
             method: 'PUT',
             headers: {'content-type': 'application/json'},
@@ -97,14 +109,18 @@ class OrderItem extends React.Component {
             .then(data => {
                 if (response.ok) {
                     NotificationManager.success( `Updated Order Item  {${data.item.itemName}} `,'Success', 3000);
-                    this.setState({quantityChanged: false});
+                    this.setState({quantityChanged: false, isSaveOrderItemButtonDisabled: false});
                     this.props.onQuantityChanged(data.itemId, data.quantity);
                 } else {
                     NotificationManager.error( data.message,'Error', 3000);
+                    this.setState({isSaveOrderItemButtonDisabled: false});
+
                 }
             }))
             .catch(() => {
                 NotificationManager.error("Order Item Update Failed", 'Error', 3000);
+                this.setState({isSaveOrderItemButtonDisabled: false});
+
             })
 
     }
@@ -123,6 +139,7 @@ class OrderItem extends React.Component {
                                 <span className="col-4 text-left"> Are you sure ?</span>
                                 <span className="col-6 btn-toolbar">
                         <button className="col-5 mr-1 btn btn-danger btn-lg p-1 "
+                                disabled={this.state.isConfirmOrderItemDeleteButtonDisabled}
                                 onClick={this.doDeleteOrderItem}> Delete
                         </button>
                         <button className="col-5 ml-1 btn btn-primary btn-lg p-1  "
@@ -165,7 +182,8 @@ class OrderItem extends React.Component {
                                              disabled={
                                                  !this.state.quantityChanged ||
                                                  (this.props.quantity === this.initialQuantity) ||
-                                                 this.props.orderClosed
+                                                 this.props.orderClosed ||
+                                                 this.state.isSaveOrderItemButtonDisabled
                                              }
                                              onClick={this.doSaveQuantity}
                                      >

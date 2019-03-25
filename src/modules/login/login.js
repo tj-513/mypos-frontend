@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./login.css";
-import {Redirect} from "react-router";
 import {withRouter} from "react-router-dom";
 
 
@@ -16,11 +15,12 @@ class Login extends Component {
             loginFailed: false,
             loginMessage: '',
             usernameEmpty: '',
-            passwordEmpty: ''
-        }
+            passwordEmpty: '',
+            signInButtonDisabled: false
+        };
         this.redirectToSignIn = this.redirectToSignIn.bind(this);
-        this.validate = this.validate.bind(this)
-        this.doLogin = this.doLogin.bind(this)
+        this.validate = this.validate.bind(this);
+        this.doLogin = this.doLogin.bind(this);
 
     }
 
@@ -38,13 +38,13 @@ class Login extends Component {
 
 
     redirectToHome() {
-        this.setState({loggedIn: true})
+        this.setState({loggedIn: true});
         this.props.history.push('/');
         window.location.reload(true);
     }
 
     validate() {
-        let usernameEmpty
+        let usernameEmpty;
         let passwordEmpty;
 
         if (!this.refs.username.value) {
@@ -54,9 +54,9 @@ class Login extends Component {
             passwordEmpty = "Please Provide a Password"
         }
 
-        this.setState({usernameEmpty: usernameEmpty, passwordEmpty: passwordEmpty})
+        this.setState({usernameEmpty: usernameEmpty, passwordEmpty: passwordEmpty});
 
-        console.log(this.state)
+        console.log(this.state);
 
         return !(usernameEmpty || passwordEmpty);
 
@@ -67,10 +67,12 @@ class Login extends Component {
         let newUser = {
             "password": this.refs.password.value,
             "username": this.refs.username.value
-        }
+        };
+
 
         if (!this.validate()) return;
 
+        this.setState({signInButtonDisabled: true});
 
         fetch(`${API_URL}/api/users/login`, {
             method: 'POST',
@@ -79,14 +81,15 @@ class Login extends Component {
         }).then(response => response.json()
             .then(data => {
                 if (response.ok) {
-                    localStorage.setItem("user", JSON.stringify(data))
+                    localStorage.setItem("user", JSON.stringify(data));
                     this.redirectToHome()
                 } else {
-                    this.setState({loginMessage: data.message})
+                    this.setState({loginMessage: data.message, signInButtonDisabled: false});
                 }
             }))
             .catch(response => {
-                this.setState({loginMessage: "Login Failed.. Please try again"})
+                this.setState({loginMessage: "Login Failed.. Please try again"});
+                this.setState({signInButtonDisabled: false});
             })
 
     }
@@ -131,6 +134,7 @@ class Login extends Component {
                                 onClick={this.redirectToSignIn}>Sign In
                         </button>
                         <button type="button" onClick={this.doLogin}
+                                disabled={this.state.signInButtonDisabled}
                                 className="btn btn-primary col-5 btn-space">Login
                         </button>
                     </div>
