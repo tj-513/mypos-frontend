@@ -16,13 +16,13 @@ class Register extends Component {
             showRegistrationStatus: false,
             successMessage: '',
             emailError: '',
-            passwordMatch: ''
+            passwordMatch: '',
+            isRegisterButtonDisabled: false
         }
     }
 
 
     redirectToLogin() {
-        console.log('redirect from register');
         this.props.history.push('login');
     }
 
@@ -64,6 +64,7 @@ class Register extends Component {
 
         if(!this.validate()) return;
 
+        this.setState({isRegisterButtonDisabled:true});
 
         fetch(`${API_URL}/api/users`, {
             method: 'POST',
@@ -82,7 +83,8 @@ class Register extends Component {
                         this.setState(prevState => prevState.registrationSuccess = false);
                         this.setState(prevState => prevState.showRegistrationStatus = true);
                         this.setState(prevState => prevState.successMessage = 'Registration Failed ' + data.message);
-                        console.log('Registration fail', data)
+                        console.log('Registration fail', data);
+                        this.setState({isRegisterButtonDisabled: false});
                 }
             }))
     }
@@ -157,7 +159,8 @@ class Register extends Component {
                         {!this.state.registrationSuccess ?
 
                             <button type="button" onClick={this.doRegister}
-                                    className="btn btn-success col-5 btn-space">Sign Up
+                                    disabled={this.state.isRegisterButtonDisabled}
+                                    className="btn btn-success col-5 btn-space">Sign Me Up
                             </button>
                             :
                             <button type="button" onClick={this.redirectToLogin}
