@@ -324,8 +324,12 @@ class OrderModal extends React.Component {
         fetch(`${API_URL}/api/items/search/${value.value}`)
             .then(response => response.json())
             .then(data => {
+
                 const itemIds = this.state.orderItems.map(orderItem => orderItem.itemId);
-                const filteredSuggestions = data.filter(item => !(itemIds.includes(item.id)))
+                let filteredSuggestions = data.filter(item => !(itemIds.includes(item.id)));
+
+                if (data.length === 0) filteredSuggestions = [{id: -1, itemName: 'No Matching Items..'}];
+
                 this.setState({itemSuggestions: filteredSuggestions})
             })
     }
@@ -338,10 +342,15 @@ class OrderModal extends React.Component {
     };
 
     onChange = (event, {newValue}) => {
-        this.setState({itemValue: newValue});
+        if (newValue !== 'No Matching Items..')
+
+            this.setState({itemValue: newValue});
     };
 
     onSuggestionSelected = (event, {suggestion}) => {
+
+        if (suggestion.id === -1) return;
+
         this.setState({
                 newItemSelected: true,
                 newItem: suggestion
