@@ -10,7 +10,8 @@ class OrderBar extends React.Component {
         super(props);
 
         this.state = {
-            deleteConfirmation: false
+            deleteConfirmation: false,
+            isConfirmOrderDeleteButtonDisabled: false
         };
 
         this.onModalEntered = this.onModalEntered.bind(this);
@@ -25,6 +26,7 @@ class OrderBar extends React.Component {
 
     doDeleteOrder() {
         let orderId = this.props.orderId;
+        this.setState({isConfirmOrderDeleteButtonDisabled: true});
 
         fetch(`${API_URL}/api/orders/${orderId}`, {
             method: 'DELETE',
@@ -36,11 +38,13 @@ class OrderBar extends React.Component {
                     NotificationManager.success(`Order {${data.orderName}} Successfully Deleted`, 'Success');
 
                 } else {
-                    console.log('Order order deletion failed', data)
+                    console.log('Order order deletion failed', data);
+                    this.setState({isConfirmOrderDeleteButtonDisabled: false});
                 }
             }))
             .catch(e => {
-                console.log('error occurred deleting', e)
+                console.log('error occurred deleting', e);
+                this.setState({isConfirmOrderDeleteButtonDisabled: false});
             })
     }
 
@@ -60,6 +64,7 @@ class OrderBar extends React.Component {
                         <span className="vcenter col-4 h5">Are you sure ?</span>
                         <span className="vcenter col-5">
                             <button className="btn btn-danger col-5 mr-1"
+                                    disabled={this.state.isConfirmOrderDeleteButtonDisabled}
                                     onClick={this.doDeleteOrder}>Delete</button>
                             <button className="btn btn-primary col-5 mr-1"
                                     onClick={() => this.setState({deleteConfirmation: false})}

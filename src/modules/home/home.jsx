@@ -53,12 +53,12 @@ class Home extends React.Component {
                     this.setState({startMessage: "No orders found"});
                     this.setState({orders: data})
                 } else {
-                    console.log('Order retrieval failed', data)
+                    console.log('Order retrieval failed', data);
                     this.setState({startMessage: "Retrieval failed..."});
                 }
             }))
             .catch(e => {
-                console.log('error occured', e)
+                console.log('error occured', e);
                 this.setState({startMessage: "Retrieval Failed..."});
             })
     }
