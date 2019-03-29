@@ -1,9 +1,12 @@
-##MyPoS - Point of Sales System
+## MyPoS - Point of Sales System
 
 This was done as a pet project for learning ReactJs.
 
+### API Documentation
+You can find the API documentation here.
+https://app.swaggerhub.com/apis-docs/tj-at-bootcamp/mypos-api/1.0
 
-###Libraries Used
+### Libraries Used
 
 
 Library used for notifications
