@@ -1,14 +1,14 @@
 import React, {Component} from "react"
 import 'bootstrap/dist/css/bootstrap.min.css'
-import "./register.css"
+import "./Register.css"
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 class Register extends Component {
 
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.doRegister = this.doRegister.bind(this);
         this.redirectToLogin = this.redirectToLogin.bind(this);
         this.state = {
@@ -26,25 +26,25 @@ class Register extends Component {
         this.props.history.push('login');
     }
 
-    validate(){
+    validate() {
         let
             emailError = "",
             passwordMatch = "";
 
         let email = this.refs.email.value;
-        if(!email.includes('@')){
+        if (!email.includes('@')) {
             emailError = 'Invalid Email';
         }
 
         let password = this.refs.password.value;
         let confirmPassword = this.refs.confirmPassword.value;
-        if( password !== confirmPassword){
+        if (password !== confirmPassword) {
             passwordMatch = "Passwords dont match"
         }
 
-        if(emailError || passwordMatch){
+        if (emailError || passwordMatch) {
 
-            this.setState({passwordMatch,emailError});
+            this.setState({passwordMatch, emailError});
             console.log(this.state);
             return false
         }
@@ -62,9 +62,9 @@ class Register extends Component {
             "username": this.refs.username.value
         };
 
-        if(!this.validate()) return;
+        if (!this.validate()) return;
 
-        this.setState({isRegisterButtonDisabled:true});
+        this.setState({isRegisterButtonDisabled: true});
 
         fetch(`${API_URL}/api/users`, {
             method: 'POST',
@@ -78,13 +78,13 @@ class Register extends Component {
                     this.setState(prevState => prevState.showRegistrationStatus = true);
                     this.setState(prevState => prevState.successMessage = 'Registration Succeess! \nPlease Login to Continue')
                 } else {
-                    if(400 <= response.status <= 500)
-
+                    if (400 <= response.status <= 500) {
                         this.setState(prevState => prevState.registrationSuccess = false);
                         this.setState(prevState => prevState.showRegistrationStatus = true);
                         this.setState(prevState => prevState.successMessage = 'Registration Failed ' + data.message);
                         console.log('Registration fail', data);
                         this.setState({isRegisterButtonDisabled: false});
+                    }
                 }
             }))
     }

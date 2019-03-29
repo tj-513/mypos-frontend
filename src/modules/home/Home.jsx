@@ -1,11 +1,11 @@
 import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import Collapse from 'react-bootstrap/Collapse';
 import Button from 'react-bootstrap/Button';
-import './home.css';
 import OrderBar from "./order_bar/OrderBar";
-import OrderModal from "./order_modal/order_modal";
+import OrderModal from "./order_modal/OrderModal";
 import {withRouter} from "react-router-dom";
+import './Home.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 
@@ -15,8 +15,8 @@ class Home extends React.Component {
     constructor(props) {
         super(props);
 
-        this.getOrdersForUser = this.getOrdersForUser.bind(this);
-        this.modalClose = this.modalClose.bind(this);
+        this.doGetOrdersForUser = this.doGetOrdersForUser.bind(this);
+        this.onModalClose = this.onModalClose.bind(this);
         this.showCreateOrder = this.showCreateOrder.bind(this);
         this.onOrderDetailsClicked = this.onOrderDetailsClicked.bind(this);
         this.onNewOrderAdded = this.onNewOrderAdded.bind(this);
@@ -38,7 +38,12 @@ class Home extends React.Component {
 
     }
 
-    getOrdersForUser() {
+
+    componentDidMount() {
+        this.doGetOrdersForUser()
+    }
+
+    doGetOrdersForUser() {
         this.setState({startMessage: "Please wait while the data is being loaded..."});
         let user = localStorage.getItem("user");
         user = JSON.parse(user);
@@ -63,23 +68,23 @@ class Home extends React.Component {
             })
     }
 
-    modalClose() {
+
+    onModalClose() {
         this.setState({
             modalData: {
                 modalShow: false
             }
         });
-        this.getOrdersForUser();
+        this.doGetOrdersForUser();
     }
 
-    showCreateOrder() {
+    onNewOrderAdded(order) {
+        this.setState(prevState => prevState.orders.unshift(order));
+    }
 
-        this.setState({
-            modalData: {
-                modalMode: 'create',
-                modalShow: true
-            }
-        })
+    onOrderDeleted(orderId) {
+        let orderItemRemoved = [...this.state.orders].filter(order => order.id !== orderId);
+        this.setState({orders: orderItemRemoved});
     }
 
     onOrderDetailsClicked(orderId) {
@@ -90,11 +95,6 @@ class Home extends React.Component {
                 modalOrderId: orderId
             }
         })
-    }
-
-    // upon creation of new order.. add to current order list
-    onNewOrderAdded(order) {
-        this.setState(prevState => prevState.orders.unshift(order));
     }
 
     onOrderUpdated(order) {
@@ -109,16 +109,18 @@ class Home extends React.Component {
 
     }
 
-    onOrderDeleted(orderId) {
-        let orderItemRemoved = [...this.state.orders].filter(order => order.id !== orderId);
-        this.setState({orders: orderItemRemoved});
+
+
+
+    showCreateOrder() {
+
+        this.setState({
+            modalData: {
+                modalMode: 'create',
+                modalShow: true
+            }
+        })
     }
-
-
-    componentDidMount() {
-        this.getOrdersForUser()
-    }
-
 
     render() {
         console.log('api',process.env);
@@ -136,7 +138,7 @@ class Home extends React.Component {
                         mode={this.state.modalData.modalMode}
                         show={this.state.modalData.modalShow}
                         orderId={this.state.modalData.modalOrderId}
-                        onHide={this.modalClose}
+                        onHide={this.onModalClose}
                         onNewOrderAdded={this.onNewOrderAdded}
                         onOrderUpdated={this.onOrderUpdated}
 

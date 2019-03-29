@@ -1,7 +1,7 @@
 import React from 'react'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import './OrdreBar.css'
 import {NotificationManager} from "react-notifications";
+import 'bootstrap/dist/css/bootstrap.min.css'
+import './OrderBar.css'
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -15,14 +15,11 @@ class OrderBar extends React.Component {
         };
 
         this.onModalEntered = this.onModalEntered.bind(this);
-        this.handleDetailsClick = this.handleDetailsClick.bind(this)
+        this.handleDetailsClick = this.handleDetailsClick.bind(this);
         this.doDeleteOrder = this.doDeleteOrder.bind(this)
 
     }
 
-    onModalEntered() {
-
-    }
 
     doDeleteOrder() {
         let orderId = this.props.orderId;
@@ -58,7 +55,7 @@ class OrderBar extends React.Component {
 
             <div>
                 {this.state.deleteConfirmation ?
-
+// delete confirmation ++++++++++++++++++++++
                     <div className="row order-bar-container" style={{backgroundColor: '#ffc2b3'}}>
                         <span className="vcenter col-3 border-right">{this.props.orderName}</span>
                         <span className="vcenter col-4 h5">Are you sure ?</span>
@@ -74,20 +71,26 @@ class OrderBar extends React.Component {
                     </div>
 
                     :
+// normal state +++++++++++++++++++++++++++++
                     <div className="row order-bar-container">
                         <span className="vcenter col-3">{this.props.orderName}</span>
                         <span
                             className={
                                 this.props.orderStatus === 'open' ?
                                     "vcenter col-2 h3 badge badge-success" : "vcenter col-2 h3 badge badge-dark"}
-                        >{this.props.orderStatus}</span>
+                        >
+                            {this.props.orderStatus}
+                        </span>
                         <span className="vcenter col-4">{this.props.dateCreated}</span>
                         <span className="vcenter col-3">
-                    <button className="btn btn-info btn-space"
-                            onClick={this.handleDetailsClick}>Details</button>
+
+                            <button className="btn btn-info btn-space"
+                                    onClick={this.handleDetailsClick}
+                            >
+                                Details
+                            </button>
 
                             {this.props.orderStatus === 'open' ?
-
 
                                 <button className="btn btn-danger btn-space"
                                         onClick={() => this.setState({deleteConfirmation: true})}
@@ -95,7 +98,7 @@ class OrderBar extends React.Component {
                                 :
                                 null
                             }
-                    </span>
+                        </span>
                     </div>
                 }
 

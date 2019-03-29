@@ -1,15 +1,15 @@
 import React, {Component} from "react";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import "./login.css";
 import {withRouter} from "react-router-dom";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import "./Login.css";
 
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 class Login extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             loggedIn: false,
             loginFailed: false,
@@ -87,7 +87,8 @@ class Login extends Component {
                     this.setState({loginMessage: data.message, signInButtonDisabled: false});
                 }
             }))
-            .catch(response => {
+            .catch(e => {
+                console.log(e);
                 this.setState({loginMessage: "Login Failed.. Please try again"});
                 this.setState({signInButtonDisabled: false});
             })

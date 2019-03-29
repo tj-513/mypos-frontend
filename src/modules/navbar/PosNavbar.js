@@ -1,6 +1,5 @@
 import React from 'react'
 import {Navbar} from 'react-bootstrap'
-import {withRouter} from "react-router";
 
 
 class PosNavbar extends React.Component {
@@ -22,7 +21,7 @@ class PosNavbar extends React.Component {
                                         onClick={(() => {
                                             localStorage.clear();
                                             window.location.reload(true);
-                                        }).bind(this)}
+                                        })}
                                 > Sign Out
                                 </button>
 
