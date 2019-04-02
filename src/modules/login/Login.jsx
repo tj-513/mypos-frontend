@@ -5,6 +5,8 @@ import "./Login.css";
 
 
 const API_URL = process.env.REACT_APP_API_URL;
+const CLIENT_SECRET = process.env.REACT_APP_CLIENT_SECRET;
+const CLIENT_ID = process.env.REACT_APP_CLIENT_ID;
 
 class Login extends Component {
 
@@ -64,24 +66,42 @@ class Login extends Component {
 
     doLogin() {
 
-        let newUser = {
-            "password": this.refs.password.value,
-            "username": this.refs.username.value
-        };
+            let newUser = {
+                grant_type:'password',
+                password: this.refs.password.value,
+                username: this.refs.username.value,
+                client_id: CLIENT_ID,
+                client_secret: CLIENT_SECRET,
+                scope: 'write'
+            };
 
 
+        // convert newUser to x-form-urlencoded format
+        const params = Object.keys(newUser).map((key) => {
+            return encodeURIComponent(key) + '=' + encodeURIComponent(newUser[key]);
+        }).join('&');
         if (!this.validate()) return;
 
         this.setState({signInButtonDisabled: true});
 
-        fetch(`${API_URL}/api/users/login`, {
+        fetch(`${API_URL}/oauth/token`, {
             method: 'POST',
-            headers: {'content-type': 'application/json'},
-            body: JSON.stringify(newUser)
+            headers: new Headers({
+                'content-type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Basic '+ btoa(`${CLIENT_ID}:${CLIENT_SECRET}`)
+            }),
+            body: params
         }).then(response => response.json()
             .then(data => {
                 if (response.ok) {
-                    localStorage.setItem("user", JSON.stringify(data));
+                    localStorage.setItem("access_token", data.access_token);
+
+                    let user = {
+                        username: data.username,
+                        id: data.userId
+                    };
+                    localStorage.setItem("user", JSON.stringify(user));
+                    console.log(data);
                     this.redirectToHome()
                 } else {
                     this.setState({loginMessage: data.message, signInButtonDisabled: false});
@@ -94,6 +114,8 @@ class Login extends Component {
             })
 
     }
+
+
 
     render() {
         return (

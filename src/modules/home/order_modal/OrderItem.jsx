@@ -4,6 +4,7 @@ import './OrderItem.css'
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
 import {MdSave, MdRemoveCircle} from "react-icons/md";
+import fetchAuth from "../../common/FetchAuth";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -65,7 +66,7 @@ class OrderItem extends React.Component {
 
         this.setState({isConfirmOrderItemDeleteButtonDisabled: true});
 
-        fetch(`${API_URL}/api/orders/deleteOrderItem`, {
+        fetchAuth(`${API_URL}/api/orders/deleteOrderItem`, {
             method: 'DELETE',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify(newOrderItem)
@@ -102,7 +103,7 @@ class OrderItem extends React.Component {
 
         this.setState({isSaveOrderItemButtonDisabled: true});
 
-        fetch(`${API_URL}/api/orders/changeItemQuantity`, {
+        fetchAuth(`${API_URL}/api/orders/changeItemQuantity`, {
             method: 'PUT',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify(newOrderItem)
