@@ -1,4 +1,5 @@
 import React from 'react'
+import fetchAuth from '../../common/FetchAuth'
 import {NotificationManager} from "react-notifications";
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './OrderBar.css'
@@ -14,7 +15,6 @@ class OrderBar extends React.Component {
             isConfirmOrderDeleteButtonDisabled: false
         };
 
-        this.onModalEntered = this.onModalEntered.bind(this);
         this.handleDetailsClick = this.handleDetailsClick.bind(this);
         this.doDeleteOrder = this.doDeleteOrder.bind(this)
 
@@ -25,7 +25,7 @@ class OrderBar extends React.Component {
         let orderId = this.props.orderId;
         this.setState({isConfirmOrderDeleteButtonDisabled: true});
 
-        fetch(`${API_URL}/api/orders/${orderId}`, {
+        fetchAuth(`${API_URL}/api/orders/${orderId}`, {
             method: 'DELETE',
         }).then(response => response.json()
             .then(data => {

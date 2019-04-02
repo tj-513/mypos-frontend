@@ -1,5 +1,6 @@
 import Autosuggest from 'react-autosuggest';
 import Button from 'react-bootstrap/Button';
+import fetchAuth from '../../common/FetchAuth'
 import Modal from 'react-bootstrap/Modal';
 import {NotificationManager} from 'react-notifications';
 import OrderItem from "./OrderItem";
@@ -104,7 +105,7 @@ class OrderModal extends React.Component {
         let orderId = this.props.orderId;
 
         this.setState({orderDetailsLoading: true});
-        fetch(`${API_URL}/api/orders/${orderId}`, {
+        fetchAuth(`${API_URL}/api/orders/${orderId}`, {
             method: 'GET',
         }).then(response => response.json()
             .then(data => {
@@ -132,7 +133,7 @@ class OrderModal extends React.Component {
     doLoadOrderItems() {
         let orderId = this.props.orderId;
         this.setState({orderItemsLoading: true});
-        fetch(`${API_URL}/api/orders/items/${orderId}`, {
+        fetchAuth(`${API_URL}/api/orders/items/${orderId}`, {
             method: 'GET',
         }).then(response => response.json()
             .then(data => {
@@ -159,7 +160,7 @@ class OrderModal extends React.Component {
 
         this.setState({isSaveButtonDisabled: true});
 
-        fetch(`${API_URL}/api/orders`, {
+        fetchAuth(`${API_URL}/api/orders`, {
             method: 'POST',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify(newOrder)
@@ -199,7 +200,7 @@ class OrderModal extends React.Component {
 
         this.setState({isAddOrderItemButtonDisabled: true});
 
-        fetch(`${API_URL}/api/orders/addItem`, {
+        fetchAuth(`${API_URL}/api/orders/addItem`, {
             method: 'PUT',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify(newOrderItem)
@@ -210,6 +211,7 @@ class OrderModal extends React.Component {
                         previousState.orderItems.push(data);
                         previousState.newItemSelected = false;
                         previousState.newItemQuantity = 0;
+                        previousState.isAddOrderItemButtonDisabled = false;
                         return previousState;
                     });
 
@@ -242,7 +244,7 @@ class OrderModal extends React.Component {
             };
 
         this.setState({isCloseConfirmationButtonDisabled: true});
-        fetch(`${API_URL}/api/orders`, {
+        fetchAuth(`${API_URL}/api/orders`, {
             method: 'PUT',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify(newOrder)
@@ -280,7 +282,7 @@ class OrderModal extends React.Component {
         this.setState({isSaveButtonDisabled: true});
 
 
-        fetch(`${API_URL}/api/orders`, {
+        fetchAuth(`${API_URL}/api/orders`, {
             method: 'PUT',
             headers: {'content-type': 'application/json'},
             body: JSON.stringify(newOrder)
@@ -354,6 +356,7 @@ class OrderModal extends React.Component {
 
         this.setState({
                 newItemSelected: true,
+                newItemQuantity: 1,
                 newItem: suggestion
             }
         );

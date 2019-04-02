@@ -1,6 +1,7 @@
 import React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
 import Button from 'react-bootstrap/Button';
+import fetchAuth from '../common/FetchAuth'
 import OrderBar from "./order_bar/OrderBar";
 import OrderModal from "./order_modal/OrderModal";
 import {withRouter} from "react-router-dom";
@@ -47,23 +48,19 @@ class Home extends React.Component {
         this.setState({startMessage: "Please wait while the data is being loaded..."});
         let user = localStorage.getItem("user");
         user = JSON.parse(user);
-        console.log(user);
 
-        fetch(`${API_URL}/api/users/orderlist/${user.id}`, {
+        fetchAuth(`${API_URL}/api/users/orderlist/${user.id}`, {
             method: 'GET',
         }).then(response => response.json()
             .then(data => {
                 if (response.ok) {
-                    console.log('Orders retrieval Success:', data);
                     this.setState({startMessage: "No orders found"});
                     this.setState({orders: data})
                 } else {
-                    console.log('Order retrieval failed', data);
                     this.setState({startMessage: "Retrieval failed..."});
                 }
             }))
             .catch(e => {
-                console.log('error occured', e);
                 this.setState({startMessage: "Retrieval Failed..."});
             })
     }
@@ -123,7 +120,6 @@ class Home extends React.Component {
     }
 
     render() {
-        console.log('api',process.env);
         const {open} = this.state;
         const openOrders = this.state.orders.filter(order => order.orderStatus === 'open');
         const closedOrders = this.state.orders.filter(order => order.orderStatus === 'closed');
@@ -134,7 +130,6 @@ class Home extends React.Component {
 
                     {(this.state.modalData.modalShow) &&
                     <OrderModal
-                        onEntered={(data) => console.log('onentered', data)}
                         mode={this.state.modalData.modalMode}
                         show={this.state.modalData.modalShow}
                         orderId={this.state.modalData.modalOrderId}
