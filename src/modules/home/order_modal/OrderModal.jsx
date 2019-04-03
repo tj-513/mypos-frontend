@@ -353,10 +353,9 @@ class OrderModal extends React.Component {
     onSuggestionSelected = (event, {suggestion}) => {
 
         if (suggestion.id === -1) return;
-
         this.setState({
                 newItemSelected: true,
-                newItemQuantity: 1,
+                newItemQuantity: suggestion.amountAvailable > 0 ? 1 : 0,
                 newItem: suggestion
             }
         );
